@@ -26,3 +26,22 @@ export const createTask = async (state: FormState, formData: FormData) => {
 
 	redirect("/");
 }
+
+export const updateTask = async (id: string, state: FormState, formData: FormData) => {
+	const updateTask: Task = {
+		title: formData.get("title") as string,
+		description: formData.get("description") as string,
+		dueDate: formData.get("dueDate") as string,
+		isCompleted: Boolean(formData.get("isCompleted")),
+	}
+
+	try {
+		await connectDb();
+		await TaskModel.updateOne({_id: id}, updateTask);
+	} catch (error) {
+		state.error = "タスクの更新に失敗しました";
+		return state;
+	}
+
+	redirect("/");
+}
