@@ -37,3 +37,13 @@ span {
 embed, iframe, img, object, svg {
   vertical-align: bottom;
 }
+
+dl, ol, ul {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+dd {
+  margin-bottom: .5rem;
+  margin-left: 0;
+}
