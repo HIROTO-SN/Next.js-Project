@@ -2,9 +2,12 @@ import React from 'react'
 
 const Footer = () => {
   return (
-    <div className='pt-0 mx-auto p-8 max-w-[1024px] border-t-[10px] border-t-[#f3f3f3] text-center'>
-      Footer is under construction
-    </div>
+    <footer className='mx-auto py-[20px] px-0 max-w-[1024px] border-t-[10px] border-t-[#f3f3f3] text-center'>
+      <span className='text-[0.8rem] leading-[1.5]' >
+        ©
+        Fancrew Inc.
+      </span>
+    </footer>
   )
 }
 
