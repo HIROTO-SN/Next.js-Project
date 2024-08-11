@@ -30,8 +30,8 @@ a {
 a,
 p,
 span {
-  font-size: 1.4rem;
-  line-height: 2.24rem;
+  font-size: 1rem;
+  line-height: 2rem;
 }
 
 embed, iframe, img, object, svg {
