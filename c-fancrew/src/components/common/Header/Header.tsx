@@ -9,7 +9,7 @@ const Header = () => {
             className="text-[1.2rem] text-[#0066cc] after:content-['|'] after:text-[1.2rem] after:px-[0.4rem]"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ textDecoration: "inherit;" }}
+            style={{ textDecoration: "inherit" }}
             href=""
           >
             調査をご検討の方はこちら
@@ -20,7 +20,7 @@ const Header = () => {
             className="text-[1.2rem] text-[#0066cc]"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ textDecoration: "inherit;" }}
+            style={{ textDecoration: "inherit" }}
             href=""
           >
             運営会社
