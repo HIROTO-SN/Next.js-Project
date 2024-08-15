@@ -1,14 +1,37 @@
 "use client";
 
+import { FormState, verifyUser } from "@/actions/account";
 import AccountLongButton from "@/components/common/Buttons/AccountLongButton";
 import SnsAuthButton from "@/components/common/Buttons/SnsAuthButton";
 import { useHeader } from "@/contexts/HeaderContext/HeaderContext";
 import { generateUUID } from "@/utils/commonUtils";
 import { useEffect, useState } from "react";
+import { useFormState } from "react-dom";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 
 const LoginPage = () => {
+  const [lineUrl, setLineUrl] = useState("");
+  const { setHideHeader } = useHeader();
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // LINE認証設定情報
   const scope = "profile openid email";
+  /** 後でDB取得かなんかにする >> */
+  const snsButtons = [
+    {
+      buttonName: "LINE",
+      link: lineUrl,
+      icon: "/logo/icon_line.svg",
+    },
+    {
+      buttonName: "Google",
+      link: "/login#",
+      icon: "/logo/icon_google.svg",
+    },
+  ];
+  /** << */
   const LINE_CONFIG = {
     baseUrl: process.env.NEXT_PUBLIC_LINE_BASE_URL ?? "",
     responseType: "code",
@@ -25,31 +48,20 @@ const LoginPage = () => {
     }&scope=${config.scope}`;
   };
 
-  const [lineUrl, setLineUrl] = useState("");
-  const { setHideHeader } = useHeader();
-  const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // Form処理
+  const initialState: FormState = { error: "" };
+  const [state, formAction] = useFormState(verifyUser, initialState);
 
-  /** 後でDB取得かなんかにする >> */
-  const snsButtons = [
-    {
-      buttonName: "LINE",
-      link: lineUrl,
-      icon: "/logo/icon_line.svg",
-    },
-    {
-      buttonName: "Google",
-      link: "/login#",
-      icon: "/logo/icon_google.svg",
-    },
-  ];
-  /** << */
-
+  /**
+   * ロード処理
+   */
   useEffect(() => {
     setLineUrl(createLineUrl(LINE_CONFIG));
-  },[]);
-  
+  }, []);
+
+  /**
+   * ヘッダーハイド処理
+   */
   useEffect(() => {
     setHideHeader(true);
     return () => setHideHeader(false);
@@ -60,7 +72,7 @@ const LoginPage = () => {
       <section className="py-8 px-2 m-auto max-w-[768px]">
         <div className="w-full mb-16">
           <div className="w-full my-0 mx-auto box-border">
-            <form className="m-0">
+            <form className="m-0" action={formAction}>
               <h1 className="m-0 text-[1.2rem] font-bold leading-[1.4]">
                 ログイン
               </h1>
@@ -72,6 +84,7 @@ const LoginPage = () => {
                   <div className="inline-flex relative w-full">
                     <input
                       id="email"
+                      name="email"
                       type="email"
                       inputMode="text"
                       className="w-full font-normal pt-4 py-4 text-[0.8rem] leading-[1.4] shadow-none border border-solid border-[#ccc] p-4 rounded-sm"
@@ -79,6 +92,7 @@ const LoginPage = () => {
                         fontFamily: "Roboto, Helvetica, Arial, sans-serif",
                       }}
                       onChange={(e) => setEmail(e.target.value)}
+                      value={email}
                     />
                   </div>
                 </dd>
@@ -89,6 +103,7 @@ const LoginPage = () => {
                   <div className="inline-flex relative w-full">
                     <input
                       id="password"
+                      name="password"
                       type="password"
                       inputMode="text"
                       className="w-full font-normal pt-4 py-4 text-[0.8rem] leading-[1.4] shadow-none border border-solid border-[#ccc] p-4 rounded-sm"
@@ -96,6 +111,7 @@ const LoginPage = () => {
                         fontFamily: "Roboto, Helvetica, Arial, sans-serif",
                       }}
                       onChange={(e) => setPassword(e.target.value)}
+                      value={password}
                     />
                     <span
                       className="left-auto right-[0.1rem] w-10 m-0 bottom-3 h-8 flex p-0 z-10 absolute items-center justify-center"
@@ -115,6 +131,9 @@ const LoginPage = () => {
                 </dd>
               </dl>
               <AccountLongButton />
+              {state.error !== "" && (
+                <p className="mt-2 text-red-500 text-sm">{state.error}</p>
+              )}
             </form>
           </div>
           <div className="relative mt-16">
