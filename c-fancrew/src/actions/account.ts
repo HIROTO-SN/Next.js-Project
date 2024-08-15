@@ -1,7 +1,5 @@
 "use server"
 
-import { UserDocument } from "@/models/User";
-
 export interface FormState {
   error: string;
 }
@@ -25,6 +23,7 @@ export const verifyUser = async (state: FormState, formData: FormData) => {
       state.error = data.error;
       return state as FormState;
     } else {
+      console.log("ログインに成功");
       return state;
     }
   } catch (e) {
