@@ -7,8 +7,8 @@ export const connectDb = async () => {
       throw new Error('DB_URI環境変数が定義されていません');
     }
     await mongoose.connect(uri);
-  } catch (error) {
-    console.log("MongoDB接続に失敗しました", error);
+  } catch (e) {
+    console.log("MongoDB接続に失敗しました", e);
     throw new Error("MongoDB接続に失敗しました");
   }
 }
