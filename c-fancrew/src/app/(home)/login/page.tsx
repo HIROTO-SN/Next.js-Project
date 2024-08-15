@@ -4,20 +4,20 @@ import { FormState, verifyUser } from "@/actions/account";
 import AccountLongButton from "@/components/common/Buttons/AccountLongButton";
 import SnsAuthButton from "@/components/common/Buttons/SnsAuthButton";
 import { useHeader } from "@/contexts/HeaderContext/HeaderContext";
-import { generateUUID } from "@/utils/commonUtils";
 import { useEffect, useState } from "react";
 import { useFormState } from "react-dom";
 import { IoEye, IoEyeOff } from "react-icons/io5";
+import { createGoogleUrl, createLineUrl } from "./authUtils";
 
 const LoginPage = () => {
   const [lineUrl, setLineUrl] = useState("");
+  const [googleUrl, setGoogleUrl] = useState("");
+
   const { setHideHeader } = useHeader();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // LINE認証設定情報
-  const scope = "profile openid email";
   /** 後でDB取得かなんかにする >> */
   const snsButtons = [
     {
@@ -27,26 +27,13 @@ const LoginPage = () => {
     },
     {
       buttonName: "Google",
-      link: "/login#",
+      link: googleUrl,
       icon: "/logo/icon_google.svg",
     },
   ];
   /** << */
-  const LINE_CONFIG = {
-    baseUrl: process.env.NEXT_PUBLIC_LINE_BASE_URL ?? "",
-    responseType: "code",
-    clientId: process.env.NEXT_PUBLIC_LINE_CLIENT_ID ?? "",
-    redirectUri: process.env.NEXT_PUBLIC_LINE_REDIRECT ?? "",
-    state: generateUUID(),
-    scope: scope,
-  };
-  const createLineUrl = (config: typeof LINE_CONFIG) => {
-    return `${config.baseUrl}response_type=${config.responseType}&client_id=${
-      config.clientId
-    }&redirect_uri=${encodeURI(config.redirectUri)}&state=${
-      config.state
-    }&scope=${config.scope}`;
-  };
+
+  // LINE認証設定情報
 
   // Form処理
   const initialState: FormState = { error: "" };
@@ -56,7 +43,8 @@ const LoginPage = () => {
    * ロード処理
    */
   useEffect(() => {
-    setLineUrl(createLineUrl(LINE_CONFIG));
+    setLineUrl(createLineUrl());
+    setGoogleUrl(createGoogleUrl());
   }, []);
 
   /**
