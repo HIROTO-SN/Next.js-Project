@@ -45,15 +45,8 @@ const LoginPage = () => {
   useEffect(() => {
     setLineUrl(createLineUrl());
     setGoogleUrl(createGoogleUrl());
-  }, []);
-
-  /**
-   * ヘッダーハイド処理
-   */
-  useEffect(() => {
     setHideHeader(true);
-    return () => setHideHeader(false);
-  }, [setHideHeader]);
+  }, []);
 
   return (
     <div>
