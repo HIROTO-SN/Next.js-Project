@@ -31,15 +31,23 @@ export const verifyUser = async (state: FormState, formData: FormData) => {
   }
 }
 
-export interface FormStateForOauth {
+export interface paramDataOauthGmail {
+  code: string;
+  stateUrl: string;
+}
+export interface retOauthVerification {
   error: string;
-  userData: {};
+  userinfo: object;
 }
 
-export const verifyOAuthCallback = async (state: FormStateForOauth, formData: FormData) => {
+export const verifyOAuthCallback = async (paramData: paramDataOauthGmail): Promise<retOauthVerification> => {
+  const ret: retOauthVerification = {
+    error: "",
+    userinfo: {},
+  }
+  
   try {
-    const code = formData.get("code");
-    const urlState = formData.get("state");
+    const { code, stateUrl } = paramData;
     
     // 認可コードをトークンに交換
     const response = await fetch(`${process.env.API_URL}/oauth/token`, {
@@ -48,17 +56,17 @@ export const verifyOAuthCallback = async (state: FormStateForOauth, formData: Fo
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ code, urlState }),
+      body: JSON.stringify({ code, stateUrl }),
     });
-    const data = await response.json();
+    const tokenData = await response.json();
 
     if (!response.ok) {
       // トークン交換に失敗しました
-      state.error = data.error;
-      return state as FormStateForOauth;
+      ret.error = tokenData.error;
+      return ret;
     }
     // IDトークンを検証する処理
-    const idToken = data.idToken
+    const idToken = tokenData.idToken
     if (idToken) {
       const userResponse = await fetch("/api/oauth/verify", {
         method: "POST",
@@ -71,18 +79,20 @@ export const verifyOAuthCallback = async (state: FormStateForOauth, formData: Fo
       const userData = await userResponse.json();
       if (!userResponse.ok) {
         // IDトークンの検証に失敗しました
-        state.error = userData.error;
-        return state as FormStateForOauth;
+        ret.error = "IDトークンの検証に失敗しました";
+        return ret;
       }
       // 認証成功時
-      return { ...state, userData: userData.userInfo };
+      ret.userinfo = userData
+      return ret;
+    } else {
+      ret.error = "ID tokenが見つかりませんでした";
+      return ret;
     }
-    state.error = "ID tokenが見つかりませんでした";
-    return state as FormStateForOauth;
 
   } catch (e) {
-    state.error = "ログイン認証に失敗しました";
-    return state as FormStateForOauth;
+    ret.error = "ユーザー認証に失敗しました";
+    return ret;
   }
 
 }
