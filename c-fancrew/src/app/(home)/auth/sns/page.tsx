@@ -14,8 +14,8 @@ const AuthCallback = () => {
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
-      const code = searchParams.get("code");
-      const state = searchParams.get("state");
+      const code = decodeURIComponent(searchParams.get("code") as string);
+      const state = searchParams.get("state") as string;
 
       // コールバックURLパラメータが正しいか確認
       if (!code || !state) {
