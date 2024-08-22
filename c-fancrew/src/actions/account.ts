@@ -45,12 +45,12 @@ export const verifyOAuthCallback = async (paramData: paramDataOauthGmail): Promi
     error: "",
     userinfo: {},
   }
-  
+
   try {
     const { code, stateUrl } = paramData;
-    
+
     // 認可コードをトークンに交換
-    const response = await fetch(`${process.env.API_URL}/oauth/token`, {
+    const tokenResponse = await fetch(`${process.env.API_URL}/oauth/token`, {
       method: "POST",
       cache: "no-store",
       headers: {
@@ -58,17 +58,19 @@ export const verifyOAuthCallback = async (paramData: paramDataOauthGmail): Promi
       },
       body: JSON.stringify({ code, stateUrl }),
     });
-    const tokenData = await response.json();
+    const tokenFetchedData = await tokenResponse.json();
 
-    if (!response.ok) {
+    if (!tokenResponse.ok) {
       // トークン交換に失敗しました
-      ret.error = tokenData.error;
+      ret.error = tokenFetchedData.error;
       return ret;
     }
     // IDトークンを検証する処理
-    const idToken = tokenData.idToken
-    if (idToken) {
-      const userResponse = await fetch("/api/oauth/verify", {
+    const idToken = tokenFetchedData.idToken;
+    console.log("idToken: " + idToken);
+
+    if (idToken.trim().length > 0) {
+      const idVerifyResponse = await fetch(`${process.env.API_URL}/oauth/verify`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,17 +78,19 @@ export const verifyOAuthCallback = async (paramData: paramDataOauthGmail): Promi
         body: JSON.stringify({ idToken }),
       });
 
-      const userData = await userResponse.json();
-      if (!userResponse.ok) {
+      const idVerifyData = await idVerifyResponse.json();
+      console.log("idVerifyData.error: " + idVerifyData.error);
+      if (!idVerifyResponse.ok) {
         // IDトークンの検証に失敗しました
-        ret.error = "IDトークンの検証に失敗しました";
+        ret.error = idVerifyData.error;
         return ret;
       }
       // 認証成功時
-      ret.userinfo = userData
+      ret.userinfo = idVerifyData;
       return ret;
     } else {
       ret.error = "ID tokenが見つかりませんでした";
+      console.log(ret.error);
       return ret;
     }
 
