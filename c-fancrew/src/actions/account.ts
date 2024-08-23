@@ -59,16 +59,14 @@ export const verifyOAuthCallback = async (paramData: paramDataOauthGmail): Promi
       body: JSON.stringify({ code, stateUrl }),
     });
     const tokenFetchedData = await tokenResponse.json();
-
-    if (!tokenResponse.ok) {
+    if (tokenFetchedData.status !== 200) {
       // トークン交換に失敗しました
       ret.error = tokenFetchedData.error;
       return ret;
     }
+
     // IDトークンを検証する処理
     const idToken = tokenFetchedData.idToken;
-    console.log("idToken: " + idToken);
-
     if (idToken.trim().length > 0) {
       const idVerifyResponse = await fetch(`${process.env.API_URL}/oauth/verify`, {
         method: "POST",
@@ -77,20 +75,20 @@ export const verifyOAuthCallback = async (paramData: paramDataOauthGmail): Promi
         },
         body: JSON.stringify({ idToken }),
       });
-
       const idVerifyData = await idVerifyResponse.json();
-      console.log("idVerifyData.error: " + idVerifyData.error);
-      if (!idVerifyResponse.ok) {
+      if (idVerifyData.status !== 200) {
         // IDトークンの検証に失敗しました
         ret.error = idVerifyData.error;
         return ret;
       }
       // 認証成功時
-      ret.userinfo = idVerifyData;
+      ret.userinfo = {
+        email: idVerifyData.userInfo.email,
+        verified: idVerifyData.userInfo.email_verified
+      };
       return ret;
     } else {
       ret.error = "ID tokenが見つかりませんでした";
-      console.log(ret.error);
       return ret;
     }
 

@@ -59,6 +59,7 @@ export const POST = async (req: Request) => {
       const userInfo = await userInfoResponse.json();
       if (userInfoResponse.ok) {
         // 正常系（ユーザー取得に成功、トークン交換成功）
+        const returnttt = handleReturn(ret.error, ret.status, tokenData.id_token, userInfo);
         return handleReturn(ret.error, ret.status, tokenData.id_token, userInfo);
       } else {
         // ユーザー情報取得に失敗

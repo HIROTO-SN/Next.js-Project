@@ -22,7 +22,8 @@ const AuthCallback = () => {
         return;
       }
       const ret: retOauthVerification = await verifyOAuthCallback(paramData);
-    
+      console.log(ret);
+  
     };
     handleOAuthCallback();
   }, []);
