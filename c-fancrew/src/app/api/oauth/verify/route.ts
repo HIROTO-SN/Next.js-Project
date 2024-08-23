@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
+import jwkToPem from 'jwk-to-pem';
 
 interface idTokenReturn {
   error: string;
@@ -7,8 +8,6 @@ interface idTokenReturn {
   status: number;
   userInfo: object;
 }
-
-const PUBLIC_KEY = process.env.NEXT_PUBLIC_JWT_PUBLIC_KEY as string;
 
 export const POST = async (req: NextRequest) => {
   const ret: idTokenReturn = {
@@ -28,17 +27,32 @@ export const POST = async (req: NextRequest) => {
 
   try {
     const { idToken } = await req.json();
-    console.log("Idtoken検証作業中---------------")
 
     if (!idToken) {
       // idTokenがリクエストに含まれていない場合
       return handleReturn('idTokenが見つかりませんでした', 400, ret.idToken, ret.userInfo);
     }
+    // GoogleJWTから公開鍵情報を取得する
+    const jwksResponse = await fetch(process.env.NEXT_PUBLIC_JWKS_URL || "");
+    const jwksData = await jwksResponse.json();
+
+    // 公開鍵を使用してトークンを検証する
+    const decodedHeader = jwt.decode(idToken, { complete: true }) as { header: { kid: string } };
+    const kid = decodedHeader?.header.kid;
+    
+    // 'kid'に該当する公開鍵を探す
+    const key = jwksData.keys.find((key: { kid: string }) => key.kid === kid);
+    if (!key) {
+      return handleReturn('有効な公開鍵が見つかりませんでした', 401, ret.idToken, ret.userInfo);
+    }
+
+    // PEMフォーマットで公開鍵を構築する
+    const publicKey = jwkToPem(key);
 
     let decodedToken;
     try {
-      // 公開鍵を使用してトークンを検証する
-      decodedToken = jwt.verify(idToken, PUBLIC_KEY, { algorithms: ['RS256'] });
+      decodedToken = jwt.verify(idToken, publicKey, { algorithms: ['RS256'] });
+
     } catch (error) {
       // トークンが無効または期限切れの場合
       return handleReturn('無効または期限切れのidTokenです', 401, ret.idToken, ret.userInfo);
@@ -49,11 +63,8 @@ export const POST = async (req: NextRequest) => {
       // idTokenの構造が無効な場合
       return handleReturn('idTokenの構造が無効です', 400, ret.idToken, ret.userInfo);
     }
-
     // トークンが有効な場合
-    ret.idToken = idToken; // Set the valid idToken
-    ret.userInfo = decodedToken; // Assuming decodedToken contains user information
-    return NextResponse.json(ret);
+    return handleReturn("", 200, idToken, decodedToken);
 
   } catch (error) {
     // 内部サーバーエラーが発生した場合
