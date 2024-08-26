@@ -2,13 +2,35 @@
 
 import { useHeader } from "@/contexts/HeaderContext/HeaderContext";
 import React, { useEffect, useState } from "react";
+import style from "./Register.module.css";
+import SnsAuthButton from "@/components/common/Buttons/SnsAuthButton";
+import { createGoogleLoginUrl, createLineLoginUrl } from "@/utils/authUtils";
 
 const page = () => {
   const { setHideHeader } = useHeader();
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
+  const [lineUrl, setLineUrl] = useState("");
+  const [googleUrl, setGoogleUrl] = useState("");
   const [email, setEmail] = useState("");
 
+  /** 後でDB取得かなんかにする >> */
+  const snsButtons = [
+    {
+      buttonName: "LINE",
+      link: lineUrl,
+      icon: "/logo/icon_line.svg",
+    },
+    {
+      buttonName: "Google",
+      link: googleUrl,
+      icon: "/logo/icon_google.svg",
+    },
+  ];
+  /** << */
+
   useEffect(() => {
+    setLineUrl(createLineLoginUrl());
+    setGoogleUrl(createGoogleLoginUrl());
     setHideHeader(true);
   });
 
@@ -74,8 +96,28 @@ const page = () => {
           </div>
         </form>
       </div>
-      <div></div>
-      <div></div>
+      <div
+        className={`${style.separater} text-[#323232] flex text-[0.9rem] items-center font-bold leading-5`}
+      >
+        または
+      </div>
+      <div className="relative mt-16">
+        <div className="w-full my-0 mx-auto">
+          <h2 className="font-bold leading-5 mt-10 text-[0.9rem]">
+            SNSアカウントで会員登録
+          </h2>
+          <ul className="mt-3 mr-0 mb-14 flex p-0 flex-wrap bg-[#ffffff] border-l border-solid border-l-[#e7e7e7]">
+            {snsButtons.map((sns) => (
+              <SnsAuthButton
+                key={sns.buttonName}
+                buttonName={sns.buttonName}
+                link={sns.link}
+                icon={sns.icon}
+              />
+            ))}
+          </ul>
+        </div>
+      </div>
     </section>
   );
 };
