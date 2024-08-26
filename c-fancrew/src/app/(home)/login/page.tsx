@@ -4,10 +4,10 @@ import { FormState, verifyUser } from "@/actions/account";
 import AccountLongButton from "@/components/common/Buttons/AccountLongButton";
 import SnsAuthButton from "@/components/common/Buttons/SnsAuthButton";
 import { useHeader } from "@/contexts/HeaderContext/HeaderContext";
+import { createGoogleLoginUrl, createLineLoginUrl } from "@/utils/authUtils";
 import { useEffect, useState } from "react";
 import { useFormState } from "react-dom";
 import { IoEye, IoEyeOff } from "react-icons/io5";
-import { createGoogleUrl, createLineUrl } from "./authUtils";
 
 const LoginPage = () => {
   const [lineUrl, setLineUrl] = useState("");
@@ -43,8 +43,8 @@ const LoginPage = () => {
    * ロード処理
    */
   useEffect(() => {
-    setLineUrl(createLineUrl());
-    setGoogleUrl(createGoogleUrl());
+    setLineUrl(createLineLoginUrl());
+    setGoogleUrl(createGoogleLoginUrl());
     setHideHeader(true);
   }, []);
 

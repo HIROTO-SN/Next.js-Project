@@ -21,7 +21,7 @@ const LINE_CONFIG: LineConfig = {
   scope: process.env.NEXT_PUBLIC_LINE_SCOPE ?? "",
 };
 
-export const createLineUrl = () => {
+export const createLineLoginUrl = () => {
   return `${LINE_CONFIG.baseUrl
     }response_type=${LINE_CONFIG.responseType
     }&client_id=${LINE_CONFIG.clientId
@@ -53,7 +53,7 @@ const GOOGLE_CONFIG: GoogleConfig = {
   grantedScopes: true,
 };
 
-export const createGoogleUrl = () => {
+export const createGoogleLoginUrl = () => {
   return `${GOOGLE_CONFIG.baseUrl
     }response_type=${LINE_CONFIG.responseType
     }&client_id=${GOOGLE_CONFIG.clientId
