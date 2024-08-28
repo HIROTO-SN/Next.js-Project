@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  color: #323232;
+  box-sizing: border-box;
+  font-size: 62.5%;
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP",
+    "メイリオ", "Meiryo", "sans-serif";
+}
+
+*:after {
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 0;
+}
+*:before {
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 0;
+}
+
+a {
+  color: #0066cc;
+  background-color: transparent;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a,
+p,
+span {
+  font-size: 1rem;
+  line-height: 2rem;
+}
+
+embed, iframe, img, object, svg {
+  vertical-align: bottom;
+}
+
+dl, ol, ul {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+dd {
+  margin-bottom: .5rem;
+  margin-left: 0;
+}
+
+img, svg {
+  vertical-align: middle;
+}
