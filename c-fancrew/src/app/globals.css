@@ -25,6 +25,7 @@ a {
   color: #0066cc;
   background-color: transparent;
   text-decoration: none;
+  cursor: pointer;
 }
 
 a,
@@ -46,4 +47,8 @@ dl, ol, ul {
 dd {
   margin-bottom: .5rem;
   margin-left: 0;
+}
+
+img, svg {
+  vertical-align: middle;
 }

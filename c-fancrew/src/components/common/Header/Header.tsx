@@ -3,13 +3,13 @@ import React from "react";
 const Header = () => {
   return (
     <div className="bg-[#f3f3f3]">
-      <ul className="mx-auto flex py-1.5 max-w-[1024px] justify-end flex-wrap">
+      <ul className="mx-auto flex py-1.2 max-w-[1024px] justify-end flex-wrap">
         <li>
           <a
-            className="text-[1.2rem] text-[#0066cc] after:content-['|'] after:text-[1.2rem] after:px-[0.4rem]"
+            className="text-[0.9rem] text-[#0066cc] after:content-['|'] after:text-[0.9rem] after:px-[0.3rem]"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ textDecoration: "inherit;" }}
+            style={{ textDecoration: "inherit" }}
             href=""
           >
             調査をご検討の方はこちら
@@ -17,10 +17,10 @@ const Header = () => {
         </li>
         <li>
           <a
-            className="text-[1.2rem] text-[#0066cc]"
+            className="text-[0.9rem] text-[#0066cc]"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ textDecoration: "inherit;" }}
+            style={{ textDecoration: "inherit" }}
             href=""
           >
             運営会社

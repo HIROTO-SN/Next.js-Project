@@ -1,0 +1,15 @@
+.separater::before,
+.separater::after {
+  content: "";
+  flex-grow: 1;
+  height: 1px;
+  background-color: #e7e7e7;
+}
+
+.separater::before {
+  margin-right: 1rem;
+}
+
+.separater::after {
+  margin-left: 1rem;
+}
