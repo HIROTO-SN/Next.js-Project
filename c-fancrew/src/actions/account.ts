@@ -4,6 +4,12 @@ export interface FormState {
   error: string;
 }
 
+/**
+ * ユーザー認証
+ * @param state 
+ * @param formData 
+ * @returns 
+ */
 export const verifyUser = async (state: FormState, formData: FormData) => {
   try {
     const email = formData.get("email");
@@ -40,6 +46,11 @@ export interface retOauthVerification {
   userinfo: object;
 }
 
+/**
+ * Google認証
+ * @param paramData 
+ * @returns 
+ */
 export const verifyOAuthCallback = async (paramData: paramDataOauthGmail): Promise<retOauthVerification> => {
   const ret: retOauthVerification = {
     error: "",
@@ -97,4 +108,17 @@ export const verifyOAuthCallback = async (paramData: paramDataOauthGmail): Promi
     return ret;
   }
 
+}
+
+/**
+ * 確認メール送信
+ * @param email メールアドレス 
+ */
+export const sendConfirmEmail = async (email: string): Promise<string> => {
+  try {
+    console.log(email)
+    return "メールアドレス送信に成功しました"
+  } catch (error) {
+    return "メールアドレス送信に失敗しました"
+  }
 }
