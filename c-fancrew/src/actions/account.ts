@@ -1,5 +1,7 @@
 "use server"
 
+import nodemailer from 'nodemailer';
+
 export interface FormState {
   error: string;
 }
@@ -116,6 +118,28 @@ export const verifyOAuthCallback = async (paramData: paramDataOauthGmail): Promi
  */
 export const sendConfirmEmail = async (email: string): Promise<string> => {
   try {
+    // Gmail SMTP 設定
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',  // SMTP server host
+      port: 587,               // SMTP server port
+      secure: false,           // Use TLS
+      auth: {
+        user: process.env.SMTP_GMAIL_USER,  // SMTP username
+        pass: process.env.SMTP_GMAIL_PASS,  // SMTP password
+      },
+    });
+
+    // Email 内容
+    const mailOptions = {
+      from: process.env.SMTP_GMAIL_USER, // 送信者アドレス
+      to: email,                    // 受信者アドレス
+      subject: 'メールアドレス確認',
+      text: 'このメールは、あなたのメールアドレスを確認するために送信されました。',
+    };
+
+    // メール送信
+    await transporter.sendMail(mailOptions);
+
     console.log(email)
     return "メールアドレス送信に成功しました"
   } catch (error) {
