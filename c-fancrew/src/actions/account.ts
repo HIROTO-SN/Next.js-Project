@@ -116,7 +116,7 @@ export const verifyOAuthCallback = async (paramData: paramDataOauthGmail): Promi
  * 確認メール送信
  * @param email メールアドレス 
  */
-export const sendConfirmEmail = async (email: string): Promise<string> => {
+export const sendConfirmEmail = async (email: string): Promise<Boolean> => {
   try {
     // Gmail SMTP 設定
     const transporter = nodemailer.createTransport({
@@ -138,11 +138,9 @@ export const sendConfirmEmail = async (email: string): Promise<string> => {
     };
 
     // メール送信
-    await transporter.sendMail(mailOptions);
-
-    console.log(email)
-    return "メールアドレス送信に成功しました"
+    const ret = await transporter.sendMail(mailOptions);
+    return true
   } catch (error) {
-    return "メールアドレス送信に失敗しました"
+    return false
   }
 }

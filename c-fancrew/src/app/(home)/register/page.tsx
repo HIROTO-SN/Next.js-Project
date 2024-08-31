@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { sendConfirmEmail } from "@/actions/account";
 import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
 import { Input } from "@/components/common/Design/Input";
+import { useRouter } from "next/navigation";
 
 // フォームで使用する変数の型を定義
 type formInputs = {
@@ -19,7 +20,8 @@ type formInputs = {
 /**
  * メール登録画面
  */
-const page = () => {
+const RegisterMail = () => {
+  const router = useRouter();
   const { setHideHeader } = useHeader();
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
   const [lineUrl, setLineUrl] = useState("");
@@ -47,12 +49,11 @@ const page = () => {
 
   const onSubmit = handleSubmit(async (data) => {
     // バリデーションチェック
-    await sendConfirmEmail(data.email as string)
-    .then((res: string) => {
+    await sendConfirmEmail(data.email as string).then((res: Boolean) => {
       if (res) {
-        console.log("ログイン成功");
+        router.push("/register/mail-confirm")
       } else {
-        console.log("ログイン失敗");
+        console.log("メール送信失敗");
       }
     });
   });
@@ -73,7 +74,9 @@ const page = () => {
       <button
         type="submit"
         disabled={pending}
-        className={`cursor-default flex relative min-h-14 mx-auto rounded-[4px] text-center py-[1.3rem] px-[6rem] text-[1rem] font-bold leading-5 ${
+        className={`
+          ${style.mailButton}
+          cursor-default flex relative min-h-14 mx-auto rounded-[4px] text-center py-[1.3rem] px-[6rem] text-[1rem] font-bold leading-5 ${
           privacyAgreed
             ? "bg-[#82ad24] text-white cursor-pointer pointer-events-auto shadow-[0px_0px_5px_rgba(0,0,0,0.5)]"
             : "bg-[#e7e7e7] text-[rgba(0,0,0,0.26)] pointer-events-none shadow-[0px_0px_5px_rgba(0,0,0,0.25)]"
@@ -170,4 +173,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default RegisterMail;
