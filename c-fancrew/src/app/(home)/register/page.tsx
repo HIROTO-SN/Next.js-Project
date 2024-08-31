@@ -8,6 +8,8 @@ import { createGoogleLoginUrl, createLineLoginUrl } from "@/utils/authUtils";
 import { useFormStatus } from "react-dom";
 import { useForm } from "react-hook-form";
 import { sendConfirmEmail } from "@/actions/account";
+import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
+import { Input } from "@/components/common/Design/Input";
 
 // フォームで使用する変数の型を定義
 type formInputs = {
@@ -114,21 +116,13 @@ const page = () => {
             <dt className="w-full text-[1rem] leading-5 font-bold">
               メールアドレス
             </dt>
-            <p
-              role="alert"
-              className="my-[0.2rem] mx-0 text-[1rem] leading-5 text-[#ee3300] font-bold"
-            >
+            <FormErrorMessage>
               {errors.email && errors.email.message}
-            </p>
+            </FormErrorMessage>
             <dd className="w-full">
               <div className="inline-flex relative w-full">
-                <input
+                <Input
                   id="email"
-                  inputMode="text"
-                  className="w-full font-normal pt-4 py-4 text-[0.9rem] leading-[1.4] shadow-none border border-solid border-[#ccc] p-4 rounded-sm"
-                  style={{
-                    fontFamily: "Roboto, Helvetica, Arial, sans-serif",
-                  }}
                   {...register("email", {
                     required: "入力必須項目です。",
                     maxLength: {
