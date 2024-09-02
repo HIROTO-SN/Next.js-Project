@@ -5,13 +5,27 @@ import React, { useEffect, useState } from "react";
 import style from "./Register.module.css";
 import SnsAuthButton from "@/components/common/Buttons/SnsAuthButton";
 import { createGoogleLoginUrl, createLineLoginUrl } from "@/utils/authUtils";
+import { useFormStatus } from "react-dom";
+import { useForm } from "react-hook-form";
+import { sendConfirmEmail } from "@/actions/account";
+import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
+import { Input } from "@/components/common/Design/Input";
+import { useRouter } from "next/navigation";
 
-const page = () => {
+// フォームで使用する変数の型を定義
+type formInputs = {
+  email: string;
+};
+
+/**
+ * メール登録画面
+ */
+const RegisterMail = () => {
+  const router = useRouter();
   const { setHideHeader } = useHeader();
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
   const [lineUrl, setLineUrl] = useState("");
   const [googleUrl, setGoogleUrl] = useState("");
-  const [email, setEmail] = useState("");
 
   /** 後でDB取得かなんかにする >> */
   const snsButtons = [
@@ -27,12 +41,53 @@ const page = () => {
     },
   ];
   /** << */
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<formInputs>();
+
+  const onSubmit = handleSubmit(async (data) => {
+    // バリデーションチェック
+    await sendConfirmEmail(data.email as string).then((res: Boolean) => {
+      if (res) {
+        router.push("/register/mail-confirm")
+      } else {
+        console.log("メール送信失敗");
+      }
+    });
+  });
 
   useEffect(() => {
     setLineUrl(createLineLoginUrl());
     setGoogleUrl(createGoogleLoginUrl());
     setHideHeader(true);
+    const currentPath = window.location.pathname;
+    if (currentPath) {
+      localStorage.setItem("urlFrom", currentPath);
+    }
   });
+
+  const SubmitButton = () => {
+    const { pending } = useFormStatus();
+    return (
+      <button
+        type="submit"
+        disabled={pending}
+        className={`
+          ${style.mailButton}
+          cursor-default flex relative min-h-14 mx-auto rounded-[4px] text-center py-[1.3rem] px-[6rem] text-[1rem] font-bold leading-5 ${
+          privacyAgreed
+            ? "bg-[#82ad24] text-white cursor-pointer pointer-events-auto shadow-[0px_0px_5px_rgba(0,0,0,0.5)]"
+            : "bg-[#e7e7e7] text-[rgba(0,0,0,0.26)] pointer-events-none shadow-[0px_0px_5px_rgba(0,0,0,0.25)]"
+        }`}
+      >
+        <span className="text-[1rem] font-bold leading-5">
+          確認メールを送信する
+        </span>
+      </button>
+    );
+  };
 
   return (
     <section className="py-8 px-2 m-auto max-w-[768px]">
@@ -59,40 +114,36 @@ const page = () => {
             </div>
           </label>
         </div>
-        <form className="text-left m-0">
+        <form onSubmit={onSubmit} className="text-left m-0">
           <dl className="gap-1 w-full my-0 mx-auto flex items-start flex-col">
             <dt className="w-full text-[1rem] leading-5 font-bold">
               メールアドレス
             </dt>
+            <FormErrorMessage>
+              {errors.email && errors.email.message}
+            </FormErrorMessage>
             <dd className="w-full">
               <div className="inline-flex relative w-full">
-                <input
+                <Input
                   id="email"
-                  name="email"
-                  type="email"
-                  inputMode="text"
-                  className="w-full font-normal pt-4 py-4 text-[0.9rem] leading-[1.4] shadow-none border border-solid border-[#ccc] p-4 rounded-sm"
-                  style={{
-                    fontFamily: "Roboto, Helvetica, Arial, sans-serif",
-                  }}
-                  onChange={(e) => setEmail(e.target.value)}
-                  value={email}
+                  {...register("email", {
+                    required: "入力必須項目です。",
+                    maxLength: {
+                      value: 50,
+                      message: "50文字以内で入力してください",
+                    },
+                    pattern: {
+                      value:
+                        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@+[a-zA-Z0-9-]+\.+[a-zA-Z0-9-]+$/,
+                      message: "メールアドレスの形式が違います",
+                    },
+                  })}
                 />
               </div>
             </dd>
           </dl>
           <div className="mt-6">
-            <button
-              className={`cursor-default flex relative min-h-14 mx-auto rounded-[4px] text-center py-[1.3rem] px-[6rem] text-[1rem] font-bold leading-5 ${
-                privacyAgreed
-                  ? "bg-[#82ad24] text-white cursor-pointer pointer-events-auto shadow-[0px_0px_5px_rgba(0,0,0,0.5)]"
-                  : "bg-[#e7e7e7] text-[rgba(0,0,0,0.26)] pointer-events-none shadow-[0px_0px_5px_rgba(0,0,0,0.25)]"
-              }`}
-            >
-              <span className="text-[1rem] font-bold leading-5">
-                確認メールを送信する
-              </span>
-            </button>
+            <SubmitButton />
           </div>
         </form>
       </div>
@@ -122,4 +173,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default RegisterMail;

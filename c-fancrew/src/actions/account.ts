@@ -1,9 +1,17 @@
 "use server"
 
+import nodemailer from 'nodemailer';
+
 export interface FormState {
   error: string;
 }
 
+/**
+ * ユーザー認証
+ * @param state 
+ * @param formData 
+ * @returns 
+ */
 export const verifyUser = async (state: FormState, formData: FormData) => {
   try {
     const email = formData.get("email");
@@ -40,6 +48,11 @@ export interface retOauthVerification {
   userinfo: object;
 }
 
+/**
+ * Google認証
+ * @param paramData 
+ * @returns 
+ */
 export const verifyOAuthCallback = async (paramData: paramDataOauthGmail): Promise<retOauthVerification> => {
   const ret: retOauthVerification = {
     error: "",
@@ -97,4 +110,37 @@ export const verifyOAuthCallback = async (paramData: paramDataOauthGmail): Promi
     return ret;
   }
 
+}
+
+/**
+ * 確認メール送信
+ * @param email メールアドレス 
+ */
+export const sendConfirmEmail = async (email: string): Promise<Boolean> => {
+  try {
+    // Gmail SMTP 設定
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',  // SMTP server host
+      port: 587,               // SMTP server port
+      secure: false,           // Use TLS
+      auth: {
+        user: process.env.SMTP_GMAIL_USER,  // SMTP username
+        pass: process.env.SMTP_GMAIL_PASS,  // SMTP password
+      },
+    });
+
+    // Email 内容
+    const mailOptions = {
+      from: process.env.SMTP_GMAIL_USER, // 送信者アドレス
+      to: email,                    // 受信者アドレス
+      subject: 'メールアドレス確認',
+      text: 'このメールは、あなたのメールアドレスを確認するために送信されました。',
+    };
+
+    // メール送信
+    const ret = await transporter.sendMail(mailOptions);
+    return true
+  } catch (error) {
+    return false
+  }
 }
