@@ -11,6 +11,7 @@ import { sendConfirmEmail } from "@/actions/account";
 import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
 import { Input } from "@/components/common/Design/Input";
 import { useRouter } from "next/navigation";
+import { useEmail } from "@/contexts/RegisterContext/EmailContext";
 
 // フォームで使用する変数の型を定義
 type formInputs = {
@@ -26,6 +27,7 @@ const RegisterMail = () => {
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
   const [lineUrl, setLineUrl] = useState("");
   const [googleUrl, setGoogleUrl] = useState("");
+  const { setEmail } = useEmail();
 
   /** 後でDB取得かなんかにする >> */
   const snsButtons = [
@@ -51,6 +53,7 @@ const RegisterMail = () => {
     // バリデーションチェック
     await sendConfirmEmail(data.email as string).then((res: Boolean) => {
       if (res) {
+        setEmail(data.email);
         router.push("/register/mail-confirm")
       } else {
         console.log("メール送信失敗");
