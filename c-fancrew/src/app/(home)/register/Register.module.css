@@ -13,3 +13,16 @@
 .separater::after {
   margin-left: 1rem;
 }
+
+.mailButton {
+  transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mailButton:active {
+  background: linear-gradient(to right, #82ad24,#3e8e41);
+  background-size: 200% 200%;
+  transition: background-color 0.5s ease-in-out 0.2s;
+}

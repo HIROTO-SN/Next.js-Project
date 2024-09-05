@@ -46,6 +46,10 @@ const LoginPage = () => {
     setLineUrl(createLineLoginUrl());
     setGoogleUrl(createGoogleLoginUrl());
     setHideHeader(true);
+    const currentPath = window.location.pathname;
+    if (currentPath) {
+      localStorage.setItem('urlFrom', currentPath);
+    }
   }, []);
 
   return (
