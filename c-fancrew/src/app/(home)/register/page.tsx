@@ -93,7 +93,7 @@ const RegisterMail = () => {
   };
 
   return (
-    <section className="py-8 px-2 m-auto max-w-[768px]">
+    <>
       <div className="flex relative min-h-44 flex-col pb-6 justify-between">
         <h1 className="text-[1.5rem] font-bold leading-5">会員登録</h1>
         <div className="flex py-6 px-0 items-center flex-col gap-6">
@@ -172,7 +172,7 @@ const RegisterMail = () => {
           </ul>
         </div>
       </div>
-    </section>
+    </>
   );
 };
 
