@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * UUIDを構築
@@ -15,4 +16,21 @@ export const generateUUID = () => {
  */
 export const getLastSegmentUrl = (url: string): string => {
   return url.substring(url.lastIndexOf('/') + 1);
+};
+
+/**
+ * 確認用URLを作成する関数
+ * 
+ * @param token - 認証用の一意のトークン文字列
+ * @param mailNo - メールに関連付けられた一意の番号
+ * @returns 生成された確認用URL
+ */
+export const createConfirmationUrl = (token: string, mailNo: number): string => {
+
+  // ベースURLは環境変数から取得（本番環境やステージング環境用）
+  // ローカル開発時にはハードコードされたURLを使用
+  const baseUrl = process.env.BASE_URL || 'http://localhost:3000';  // 本番環境では実際のURLに置き換える
+
+  // 完全な確認用URLを返す
+  return `${baseUrl}/${mailNo}?param=${token}`;
 };
