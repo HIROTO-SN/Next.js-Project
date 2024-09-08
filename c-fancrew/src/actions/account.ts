@@ -1,6 +1,9 @@
 "use server"
 
 import nodemailer from 'nodemailer';
+import { confirmEmailTemplate } from '../../templates/mail/confirmation';
+import { createConfirmationUrl } from '@/utils/commonUtils';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface FormState {
   error: string;
@@ -129,12 +132,28 @@ export const sendConfirmEmail = async (email: string): Promise<Boolean> => {
       },
     });
 
+    const token = uuidv4();  // ユニークなトークンを生成
+
+    const response = await fetch(`${process.env.API_URL}/register/confirmation`, {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, token }),
+    })
+
+    const data = await response.json();
+    if (!response.ok) {
+      return data.message;
+    }
+
     // Email 内容
     const mailOptions = {
       from: process.env.SMTP_GMAIL_USER, // 送信者アドレス
       to: email,                    // 受信者アドレス
-      subject: 'メールアドレス確認',
-      text: 'このメールは、あなたのメールアドレスを確認するために送信されました。',
+      subject: '【フェンくる-clone】仮登録完了',
+      html: confirmEmailTemplate(createConfirmationUrl(token, data.mailNo)),
     };
 
     // メール送信
