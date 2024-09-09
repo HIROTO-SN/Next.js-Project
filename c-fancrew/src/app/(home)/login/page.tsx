@@ -13,7 +13,6 @@ const LoginPage = () => {
   const [lineUrl, setLineUrl] = useState("");
   const [googleUrl, setGoogleUrl] = useState("");
 
-  const { setHideHeader } = useHeader();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,7 +44,6 @@ const LoginPage = () => {
   useEffect(() => {
     setLineUrl(createLineLoginUrl());
     setGoogleUrl(createGoogleLoginUrl());
-    setHideHeader(true);
     const currentPath = window.location.pathname;
     if (currentPath) {
       localStorage.setItem('urlFrom', currentPath);
