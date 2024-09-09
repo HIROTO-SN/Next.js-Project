@@ -1,17 +1,9 @@
 "use client";
 
-import { useHeader } from "@/contexts/HeaderContext/HeaderContext";
 import { useEmail } from "@/contexts/RegisterContext/EmailContext";
-import { useEffect } from "react";
 
 const MailConfirm = () => {
   const { email } = useEmail();
-  const { setHideHeader } = useHeader();
-
-  useEffect(() => {
-    setHideHeader(true);
-  });
-
   return (
     <div className="w-full my-0 mx-auto border-solid border-0">
       <h1 className="text-[1.2rem] font-bold leading-5 mb-[1.5rem] m-0">

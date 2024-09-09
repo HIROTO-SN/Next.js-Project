@@ -8,11 +8,11 @@ import { EmailProvider } from "@/contexts/RegisterContext/EmailContext";
 import React, { useEffect } from "react";
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { hideHeader } = useHeader();
+  const { showHeader } = useHeader();
 
   return (
     <div>
-      {!hideHeader && <Header />}
+      {showHeader && <Header />}
       <GuestBar />
       <main>
         <EmailProvider>

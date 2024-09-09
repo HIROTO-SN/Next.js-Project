@@ -15,8 +15,14 @@ export const generateUUID = () => {
  * @return {string} - スラッシュ以降の文字列
  */
 export const getLastSegmentUrl = (url: string): string => {
-  return url.substring(url.lastIndexOf('/') + 1);
-};
+  const lastSegment = url.substring(url.lastIndexOf('/') + 1);
+  const isNumber = !isNaN(Number(lastSegment));
+  const lastSlashIndex = url.lastIndexOf('/');
+
+  return isNumber
+    ? url.substring(url.lastIndexOf('/', lastSlashIndex - 1) + 1, lastSlashIndex)
+    : lastSegment
+}
 
 /**
  * 確認用URLを作成する関数

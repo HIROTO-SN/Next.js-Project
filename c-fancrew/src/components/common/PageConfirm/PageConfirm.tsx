@@ -5,10 +5,11 @@ interface PageConfirmProps {
 }
 
 const PageConfirm: React.FC<PageConfirmProps> = ({ currentUrl }) => {
+  console.log(currentUrl)
   const pageConfirmList = [
     { name: "会員登録", urlName: "register" },
     { name: "メールアドレス登録", urlName: "mail-confirm" },
-    { name: "会員情報登録", urlName: "register" },
+    { name: "会員情報登録", urlName: "info" },
     { name: "SMS認証", urlName: "register" },
     { isLast: true, name: "完了", urlName: "register" },
   ];

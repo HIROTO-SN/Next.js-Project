@@ -5,6 +5,7 @@ import { getLastSegmentUrl } from "@/utils/commonUtils";
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const currentPath = window.location.pathname;
+  console.log(currentPath)
   return (
     <>
       <PageConfirm currentUrl={getLastSegmentUrl(currentPath)}/>
