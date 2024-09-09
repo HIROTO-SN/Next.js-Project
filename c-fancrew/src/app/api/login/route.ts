@@ -1,6 +1,5 @@
 import { UserModel } from "@/models/User";
 import { connectDb } from "@/utils/mongodb";
-import bcrypt from 'bcrypt';
 import { NextResponse } from "next/server";
 
 export const POST = async (req: Request) => {
