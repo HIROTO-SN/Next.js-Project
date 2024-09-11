@@ -23,7 +23,6 @@ type formInputs = {
  */
 const RegisterMail = () => {
   const router = useRouter();
-  const { setHideHeader } = useHeader();
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
   const [lineUrl, setLineUrl] = useState("");
   const [googleUrl, setGoogleUrl] = useState("");
@@ -64,7 +63,6 @@ const RegisterMail = () => {
   useEffect(() => {
     setLineUrl(createLineLoginUrl());
     setGoogleUrl(createGoogleLoginUrl());
-    setHideHeader(true);
     const currentPath = window.location.pathname;
     if (currentPath) {
       localStorage.setItem("urlFrom", currentPath);
