@@ -27,6 +27,7 @@ const RegisterMail = () => {
   const [lineUrl, setLineUrl] = useState("");
   const [googleUrl, setGoogleUrl] = useState("");
   const { setEmail } = useEmail();
+  const [loading, setLoading] = useState(false);
 
   /** 後でDB取得かなんかにする >> */
   const snsButtons = [
@@ -49,6 +50,8 @@ const RegisterMail = () => {
   } = useForm<formInputs>();
 
   const onSubmit = handleSubmit(async (data) => {
+    if (loading) return;
+    setLoading(true);
     // バリデーションチェック
     await sendConfirmEmail(data.email as string).then((res: Boolean) => {
       if (res) {
@@ -70,11 +73,9 @@ const RegisterMail = () => {
   });
 
   const SubmitButton = () => {
-    const { pending } = useFormStatus();
     return (
       <button
         type="submit"
-        disabled={pending}
         className={`
           ${style.mailButton}
           cursor-default flex relative min-h-14 mx-auto rounded-[4px] text-center py-[1.3rem] px-[6rem] text-[1rem] font-bold leading-5 ${
