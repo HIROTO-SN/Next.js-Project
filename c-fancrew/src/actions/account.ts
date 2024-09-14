@@ -163,3 +163,36 @@ export const sendConfirmEmail = async (email: string): Promise<Boolean> => {
     return false
   }
 }
+
+export interface paramDataConfirmingMail {
+  id: Number;
+  param: string;
+}
+
+/**
+ * 本登録画面遷移時トークン認証
+ * @param
+ */
+export const verifyConfirmEmail = async (paramData: paramDataConfirmingMail): Promise<Boolean> => {
+  try {
+    const { id, param } = paramData;
+    const url = `${process.env.API_URL}/register/confirmation?id=${id}&param=${param}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    })
+
+    const data = await response.json();
+    if (!response.ok) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
