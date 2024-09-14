@@ -12,6 +12,7 @@ import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
 import { Input } from "@/components/common/Design/Input";
 import { useRouter } from "next/navigation";
 import { useEmail } from "@/contexts/RegisterContext/EmailContext";
+import { useBarRight } from "@/contexts/BarRightContext/BarRightContext";
 
 // フォームで使用する変数の型を定義
 type formInputs = {
@@ -28,6 +29,7 @@ const RegisterMail = () => {
   const [googleUrl, setGoogleUrl] = useState("");
   const { setEmail } = useEmail();
   const [loading, setLoading] = useState(false);
+  const { setShowBarRight } = useBarRight();
 
   /** 後でDB取得かなんかにする >> */
   const snsButtons = [
@@ -56,14 +58,18 @@ const RegisterMail = () => {
     await sendConfirmEmail(data.email as string).then((res: Boolean) => {
       if (res) {
         setEmail(data.email);
-        router.push("/register/mail-confirm")
+        router.push("/register/mail-confirm");
       } else {
         console.log("メール送信失敗");
       }
     });
   });
 
+  /**
+   * ロード処理
+   */
   useEffect(() => {
+    setShowBarRight(true);
     setLineUrl(createLineLoginUrl());
     setGoogleUrl(createGoogleLoginUrl());
     const currentPath = window.location.pathname;
@@ -79,10 +85,10 @@ const RegisterMail = () => {
         className={`
           ${style.mailButton}
           cursor-default flex relative min-h-14 mx-auto rounded-[4px] text-center py-[1.3rem] px-[6rem] text-[1rem] font-bold leading-5 ${
-          privacyAgreed
-            ? "bg-[#82ad24] text-white cursor-pointer pointer-events-auto shadow-[0px_0px_5px_rgba(0,0,0,0.5)]"
-            : "bg-[#e7e7e7] text-[rgba(0,0,0,0.26)] pointer-events-none shadow-[0px_0px_5px_rgba(0,0,0,0.25)]"
-        }`}
+            privacyAgreed
+              ? "bg-[#82ad24] text-white cursor-pointer pointer-events-auto shadow-[0px_0px_5px_rgba(0,0,0,0.5)]"
+              : "bg-[#e7e7e7] text-[rgba(0,0,0,0.26)] pointer-events-none shadow-[0px_0px_5px_rgba(0,0,0,0.25)]"
+          }`}
       >
         <span className="text-[1rem] font-bold leading-5">
           確認メールを送信する
