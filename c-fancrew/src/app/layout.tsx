@@ -1,5 +1,6 @@
 import { HeaderProvider } from "@/contexts/HeaderContext/HeaderContext";
 import "./globals.css";
+import { BarRightHeader } from "@/contexts/BarRightContext/BarRightContext";
 
 export default function RootLayout({
   children,
@@ -9,7 +10,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <HeaderProvider>
-        <body>{children}</body>
+        <BarRightHeader>
+          <body>{children}</body>
+        </BarRightHeader>
       </HeaderProvider>
     </html>
   );

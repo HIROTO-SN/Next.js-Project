@@ -3,6 +3,7 @@
 import { FormState, verifyUser } from "@/actions/account";
 import AccountLongButton from "@/components/common/Buttons/AccountLongButton";
 import SnsAuthButton from "@/components/common/Buttons/SnsAuthButton";
+import { useBarRight } from "@/contexts/BarRightContext/BarRightContext";
 import { useHeader } from "@/contexts/HeaderContext/HeaderContext";
 import { createGoogleLoginUrl, createLineLoginUrl } from "@/utils/authUtils";
 import { useEffect, useState } from "react";
@@ -16,6 +17,8 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const { setShowBarRight } = useBarRight();
 
   /** 後でDB取得かなんかにする >> */
   const snsButtons = [
@@ -44,6 +47,7 @@ const LoginPage = () => {
   useEffect(() => {
     setLineUrl(createLineLoginUrl());
     setGoogleUrl(createGoogleLoginUrl());
+    setShowBarRight(true);
     const currentPath = window.location.pathname;
     if (currentPath) {
       localStorage.setItem('urlFrom', currentPath);

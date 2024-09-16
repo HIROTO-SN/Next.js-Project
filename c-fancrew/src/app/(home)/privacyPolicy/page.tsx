@@ -1,6 +1,18 @@
-import React from "react";
+"use client";
+
+import { useBarRight } from "@/contexts/BarRightContext/BarRightContext";
+import { useEffect } from "react";
 
 const page = () => {
+  const { setShowBarRight } = useBarRight();
+
+  /**
+   * ロード処理
+   */
+  useEffect(() => {
+    setShowBarRight(true);
+  }, []);
+
   return (
     <section className="w-full mt-0 mx-auto mb-14 pt-3 pr-4 pb-6 max-w-5xl text-[1.0rem] leading-7">
       <h2 className="mt-12 mr-0 mb-6 text-center font-bold text-[1.1rem]">
