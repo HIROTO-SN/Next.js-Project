@@ -2,17 +2,18 @@
 
 import { paramDataConfirmingMail, verifyConfirmEmail } from "@/actions/account";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 const RegisterInfo = () => {
   const { id } = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [loadFlg, setLoadFlg] = useState(false);
 
   /**
    * ロード処理
    */
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleComfirmEmailCallback = async () => {
       const param = searchParams.get("param");
       if (!param) {
@@ -22,14 +23,21 @@ const RegisterInfo = () => {
       const paramData: paramDataConfirmingMail = {
         id: Number(id),
         param: param ? param : "",
-      }
+      };
       const ret: Boolean = await verifyConfirmEmail(paramData);
-      console.log("ret: " + ret);
+      if (!ret) {
+        router.push(`/register/error`);
+      }
+      setLoadFlg(true);
     };
     handleComfirmEmailCallback();
   }, []);
 
-  return <div>RegisterInfo</div>;
+  if (loadFlg) {
+    return <div>RegisterInfo</div>;
+  } else {
+    return null;
+  }
 };
 
 export default RegisterInfo;

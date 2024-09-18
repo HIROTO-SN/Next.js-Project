@@ -187,8 +187,6 @@ export const verifyConfirmEmail = async (paramData: paramDataConfirmingMail): Pr
         "Content-Type": "application/json",
       }
     })
-    throw new Error("Simulated error");
-
     const data = await response.json();
     if (response.status !== 200) {
       ApplogToFile(`Mail confirmation failed with status: ${response.status}, id: ${id}, token: ${param}, message: ${data.message}`);
@@ -196,7 +194,8 @@ export const verifyConfirmEmail = async (paramData: paramDataConfirmingMail): Pr
     }
     return true;
   } catch (error) {
-    ErrorlogToFile(`Mail confirmation failed: id: ${id}, token: ${param}, message: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    ErrorlogToFile(`Mail confirmation failed: id: ${id}, token: ${param}, message: ${errorMessage}`);
     return false;
   }
 }
