@@ -29,9 +29,6 @@ const RegisterInfo = () => {
     handleComfirmEmailCallback();
   }, []);
 
-  console.log("id: " + id);
-  console.log("param: " + searchParams.get("param"));
-
   return <div>RegisterInfo</div>;
 };
 

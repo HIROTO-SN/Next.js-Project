@@ -2,60 +2,76 @@ import { ConfirmMailModel } from "@/models/ConfirmMail";
 import { connectDb } from "@/utils/mongodb";
 import { NextResponse } from "next/server";
 
+interface confReturn {
+  message: string;
+  status: number;
+  error: string;
+}
+
+function createConfReturn(
+  message: string = "トークン認証成功",
+  status: number = 200,
+  error: string = "",
+): confReturn {
+  return { message, status, error };
+}
+
+const handleReturn = ({ message, status, error }: confReturn) => {
+  return NextResponse.json(
+    { message: message, error: error },
+    { status: status },
+  );
+};
+
+/**
+ * 確認用メールアドレスをトークンとidで認証
+ * @param req 
+ * @returns 
+ */
 export const GET = async (req: Request) => {
   try {
     // データベースに接続
     await connectDb();
-  
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     const param = searchParams.get('param');
-  
+
     // URLを認証
     if (!id || !param) {
-      return NextResponse.json(
-        { message: "idまたはparamが見つかりません" },
-        { status: 400 }
-      );
+      return handleReturn(createConfReturn("idまたはparamが見つかりません", 400, ""))
     }
-  
     // idとparamでDB検索
     const response = await ConfirmMailModel.findOne({ mailNo: id, token: param });
-        
     if (!response) {
-      return NextResponse.json(
-        { message: "トークンまたはメール番号が間違っています" },
-        { status: 404 }
-      );
+      return handleReturn(createConfReturn("トークンまたはメール番号が間違っています", 404, ""))
     }
-
+    
     // 現在時刻と比較し24時間以上経過している場合はエラー
     const moment = require('moment');
     const createdAtTime = moment.utc(response.createdAt);
     const currentTime = moment.utc();
     const timeDifference = moment.duration(currentTime.diff(createdAtTime));
-    const hours = timeDifference.hours();
+    const days = Number(timeDifference.days());
+    const hours = Number(timeDifference.hours());
+    const total = days * 24 + hours;
 
-    if (hours > 24) {
-      return NextResponse.json(
-        { message: "トークン認証成功", response },
-        { status: 200 }
-      );
+    // トークンの有効期限は24時間とする
+    if (total < 24) {
+      return handleReturn(createConfReturn())
+    } else {
+      return handleReturn(createConfReturn("トークンの有効期限が切れています", 404, ""))
     }
-
-    return NextResponse.json(
-      { message: "トークン認証成功", response },
-      { status: 200 }
-    );
   } catch (error) {
-    return NextResponse.json(
-      { message: "サーバーエラー", error: error instanceof Error ? error.message : String(error) },
-      { status: 500 }
-    );
+    return handleReturn(createConfReturn("サーバーエラー", 500, error instanceof Error ? error.message : String(error)))
   }
-
 }
 
+/**
+ * 確認用メールアドレスの登録
+ * @param req 
+ * @returns 
+ */
 export const POST = async (req: Request) => {
   try {
     // データベースに接続
@@ -89,7 +105,7 @@ export const POST = async (req: Request) => {
 
     // 正常終了時のレスポンス
     return NextResponse.json(
-      { 
+      {
         message: "メールアドレスが正常に登録されました",
         mailNo: mailNo
       },

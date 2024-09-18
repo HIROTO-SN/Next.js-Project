@@ -1,9 +1,10 @@
 "use server"
 
-import nodemailer from 'nodemailer';
-import { confirmEmailTemplate } from '../../templates/mail/confirmation';
 import { createConfirmationUrl } from '@/utils/commonUtils';
+import { ApplogToFile, ErrorlogToFile } from '@/utils/logger';
+import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
+import { confirmEmailTemplate } from '../../templates/mail/confirmation';
 
 export interface FormState {
   error: string;
@@ -174,8 +175,9 @@ export interface paramDataConfirmingMail {
  * @param
  */
 export const verifyConfirmEmail = async (paramData: paramDataConfirmingMail): Promise<Boolean> => {
+  const { id, param } = paramData;
+
   try {
-    const { id, param } = paramData;
     const url = `${process.env.API_URL}/register/confirmation?id=${id}&param=${param}`;
 
     const response = await fetch(url, {
@@ -185,14 +187,16 @@ export const verifyConfirmEmail = async (paramData: paramDataConfirmingMail): Pr
         "Content-Type": "application/json",
       }
     })
+    throw new Error("Simulated error");
 
     const data = await response.json();
-    if (!response.ok) {
+    if (response.status !== 200) {
+      ApplogToFile(`Mail confirmation failed with status: ${response.status}, id: ${id}, token: ${param}, message: ${data.message}`);
       return false;
     }
-
     return true;
   } catch (error) {
+    ErrorlogToFile(`Mail confirmation failed: id: ${id}, token: ${param}, message: ${error}`);
     return false;
   }
 }
