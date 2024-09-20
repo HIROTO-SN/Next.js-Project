@@ -6,19 +6,21 @@ interface confReturn {
   message: string;
   status: number;
   error: string;
+  email: string;
 }
 
 function createConfReturn(
+  email: string = "",
   message: string = "トークン認証成功",
   status: number = 200,
   error: string = "",
 ): confReturn {
-  return { message, status, error };
+  return { email, message, status, error };
 }
 
-const handleReturn = ({ message, status, error }: confReturn) => {
+const handleReturn = ({ message, status, error, email }: confReturn) => {
   return NextResponse.json(
-    { message: message, error: error },
+    { message: message, error: error, email: email },
     { status: status },
   );
 };
@@ -32,6 +34,8 @@ export const GET = async (req: Request) => {
   try {
     // データベースに接続
     await connectDb();
+    console.log("接続")
+
 
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
@@ -39,12 +43,13 @@ export const GET = async (req: Request) => {
 
     // URLを認証
     if (!id || !param) {
-      return handleReturn(createConfReturn("idまたはparamが見つかりません", 400, ""))
+      return handleReturn(createConfReturn("", "idまたはparamが見つかりません", 400, ""))
     }
     // idとparamでDB検索
     const response = await ConfirmMailModel.findOne({ mailNo: id, token: param });
+
     if (!response) {
-      return handleReturn(createConfReturn("トークンまたはメール番号が間違っています", 404, ""))
+      return handleReturn(createConfReturn("", "トークンまたはメール番号が間違っています", 404, ""))
     }
     
     // 現在時刻と比較し24時間以上経過している場合はエラー
@@ -58,12 +63,12 @@ export const GET = async (req: Request) => {
 
     // トークンの有効期限は24時間とする
     if (total < 24) {
-      return handleReturn(createConfReturn())
+      return handleReturn(createConfReturn(response.email))
     } else {
-      return handleReturn(createConfReturn("トークンの有効期限が切れています", 404, ""))
+      return handleReturn(createConfReturn(response.email, "トークンの有効期限が切れています", 404, ""))
     }
   } catch (error) {
-    return handleReturn(createConfReturn("サーバーエラー", 500, error instanceof Error ? error.message : String(error)))
+    return handleReturn(createConfReturn("", "サーバーエラー", 500, error instanceof Error ? error.message : String(error)))
   }
 }
 

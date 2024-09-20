@@ -174,7 +174,7 @@ export interface paramDataConfirmingMail {
  * 本登録画面遷移時トークン認証
  * @param
  */
-export const verifyConfirmEmail = async (paramData: paramDataConfirmingMail): Promise<Boolean> => {
+export const verifyConfirmEmail = async (paramData: paramDataConfirmingMail): Promise<string> => {
   const { id, param } = paramData;
 
   try {
@@ -190,12 +190,12 @@ export const verifyConfirmEmail = async (paramData: paramDataConfirmingMail): Pr
     const data = await response.json();
     if (response.status !== 200) {
       ApplogToFile(`Mail confirmation failed with status: ${response.status}, id: ${id}, token: ${param}, message: ${data.message}`);
-      return false;
+      return "";
     }
-    return true;
+    return data.email;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     ErrorlogToFile(`Mail confirmation failed: id: ${id}, token: ${param}, message: ${errorMessage}`);
-    return false;
+    return "";
   }
 }
