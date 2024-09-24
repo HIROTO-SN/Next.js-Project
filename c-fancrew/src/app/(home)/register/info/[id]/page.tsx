@@ -6,6 +6,8 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useLayoutEffect, useState } from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { OrbitProgress } from "react-loading-indicators";
+import { TiArrowSortedDown } from "react-icons/ti";
+import { TiArrowSortedUp } from "react-icons/ti";
 
 const RegisterInfo = () => {
   const { id } = useParams();
@@ -14,6 +16,7 @@ const RegisterInfo = () => {
   const [loadFlg, setLoadFlg] = useState(false);
   const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showSelect, setShowSelect] = useState(false);
 
   /**
    * ロード処理
@@ -177,11 +180,14 @@ const RegisterInfo = () => {
                 お得なモニターをお届けするメルマガ
               </dt>
               <dd className="ml-0">
-                <label htmlFor="mail-delivery" className="inline-flex items-center cursor-pointer ml-[-11px] mr-[16px]">
+                <label
+                  htmlFor="mail-delivery"
+                  className="inline-flex items-center cursor-pointer ml-[-11px] mr-[16px]"
+                >
                   <span className="p-[9px]">
                     <Input
                       id="mail-delivery"
-                      name="mail-delivery"  
+                      name="mail-delivery"
                       type="checkbox"
                     />
                   </span>
@@ -192,9 +198,13 @@ const RegisterInfo = () => {
                 <label htmlFor="secret">秘密の質問</label>
               </dt>
               <dd className="ml-0">
-                <div className="inline-flex relative w-full">
-                  <select id="secret" name="secret" />
-                  <option>選択してください</option>
+                <div className="inline-flex items-center w-full relative border-radius-[4px]" onClick={() => setShowSelect(!showSelect)}>
+                  <div className="pt-[1rem] pr-[32px] pb-[1rem] pl-[1.2rem] text-[1rem] leading-5 border border-[#ccc] border-solid w-full cursor-pointer">選択してください</div>
+                  {!showSelect ?
+                    <TiArrowSortedDown className="absolute top-[calc(50%-1.5rem)] right-2 w-7 h-12 text-[1rem] text-[rgba(0,0,0,0.54)] cursor-pointer"/>
+                    :
+                    <TiArrowSortedUp className="absolute top-[calc(50%-1.5rem)] right-2 w-7 h-12 text-[1rem] text-[rgba(0,0,0,0.54)] cursor-pointer"/>
+                  }
                 </div>
               </dd>
               <dt className="mt-6 mr-0 mb-1 text-[1rem] leading-5 font-bold">
