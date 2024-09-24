@@ -174,6 +174,21 @@ const RegisterInfo = () => {
                 </div>
               </dd>
               <dt className="mt-6 mr-0 mb-1 text-[1rem] leading-5 font-bold">
+                お得なモニターをお届けするメルマガ
+              </dt>
+              <dd className="ml-0">
+                <label htmlFor="mail-delivery" className="inline-flex items-center cursor-pointer ml-[-11px] mr-[16px]">
+                  <span className="p-[9px]">
+                    <Input
+                      id="mail-delivery"
+                      name="mail-delivery"  
+                      type="checkbox"
+                    />
+                  </span>
+                  <span className="text-[1rem]">配信を希望する</span>
+                </label>
+              </dd>
+              <dt className="mt-6 mr-0 mb-1 text-[1rem] leading-5 font-bold">
                 <label htmlFor="secret">秘密の質問</label>
               </dt>
               <dd className="ml-0">
