@@ -8,6 +8,7 @@ import { IoEye, IoEyeOff } from "react-icons/io5";
 import { OrbitProgress } from "react-loading-indicators";
 import { TiArrowSortedDown } from "react-icons/ti";
 import { TiArrowSortedUp } from "react-icons/ti";
+import CustomSelect from "@/components/common/Design/CustomSelect";
 
 const RegisterInfo = () => {
   const { id } = useParams();
@@ -42,6 +43,27 @@ const RegisterInfo = () => {
     };
     handleComfirmEmailCallback();
   }, []);
+
+  /**
+   * セレクトボックスクリックイベント
+   */
+  const onSelectClick = () => {
+    setShowSelect(!showSelect)
+  }
+
+  const SubmitButton = () => {
+    return (
+      <button
+        type="submit"
+        className="cursor-pointer bg-transparent w-full max-w-[335px] mt-[42px] mx-auto mb-0 shadow-[0px_0px_5px_rgba(0,0,0,0.25)]
+        border border-solid border-[#82ad24] flex py-[8px] px-[34px] text-center relative min-h-[60px] rounded-[4px] justify-center items-center"
+      >
+        <span className="flex-grow text-[#82ad24] text-[1rem] font-bold leading-5">
+          入力内容を確認する
+        </span>
+      </button>
+    );
+  };
 
   return (
     <div className="w-full my-0 mx-auto box-border">
@@ -198,8 +220,13 @@ const RegisterInfo = () => {
                 <label htmlFor="secret">秘密の質問</label>
               </dt>
               <dd className="ml-0">
-                <div className="inline-flex items-center w-full relative border-radius-[4px]" onClick={() => setShowSelect(!showSelect)}>
-                  <div className="pt-[1rem] pr-[32px] pb-[1rem] pl-[1.2rem] text-[1rem] leading-5 border border-[#ccc] border-solid w-full cursor-pointer">選択してください</div>
+                <div className="inline-flex items-center w-full relative border-radius-[4px]" onClick={() => onSelectClick()}>
+                  <div className="pt-[1rem] pr-[32px] pb-[1rem] pl-[1.2rem] text-[1rem] leading-5 border border-[#ccc] border-solid w-full cursor-pointer">
+                    選択してください
+                    {showSelect && 
+                      <CustomSelect/>
+                    }
+                  </div>
                   {!showSelect ?
                     <TiArrowSortedDown className="absolute top-[calc(50%-1.5rem)] right-2 w-7 h-12 text-[1rem] text-[rgba(0,0,0,0.54)] cursor-pointer"/>
                     :
@@ -221,6 +248,7 @@ const RegisterInfo = () => {
                 </div>
               </dd>
             </dl>
+            <SubmitButton/>
           </form>
         </div>
       ) : (
