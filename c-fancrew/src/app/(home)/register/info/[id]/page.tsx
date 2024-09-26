@@ -9,12 +9,28 @@ import { OrbitProgress } from "react-loading-indicators";
 import { TiArrowSortedDown } from "react-icons/ti";
 import { TiArrowSortedUp } from "react-icons/ti";
 import CustomSelect from "@/components/common/Design/CustomSelect";
+import { useForm } from "react-hook-form";
+import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
+
+// フォームで使用する変数の型を定義
+type formInputs = {
+  email: string;
+  lastName: string;
+  firstName: string;
+  password: string;
+  birthday: Date;
+  gender: string;
+  zipcode: string;
+  secret: Number;
+  secretAnswer: string;
+};
 
 const RegisterInfo = () => {
   const { id } = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [loadFlg, setLoadFlg] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showSelect, setShowSelect] = useState(false);
@@ -48,8 +64,28 @@ const RegisterInfo = () => {
    * セレクトボックスクリックイベント
    */
   const onSelectClick = () => {
-    setShowSelect(!showSelect)
-  }
+    setShowSelect(!showSelect);
+  };
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<formInputs>();
+
+  const onSubmit = handleSubmit(async (data) => {
+    if (submitLoading) return;
+    setSubmitLoading(true);
+    // // バリデーションチェック
+    // await sendConfirmEmail(data.email as string).then((res: Boolean) => {
+    //   if (res) {
+    //     setEmail(data.email);
+    //     router.push("/register/mail-confirm");
+    //   } else {
+    //     console.log("メール送信失敗");
+    //   }
+    // });
+  });
 
   const SubmitButton = () => {
     return (
@@ -78,11 +114,14 @@ const RegisterInfo = () => {
           <h2 className="leading-4 font-bold text-[1rem] mt-[1.5rem] mr-0 mb-0 text-[#323232]">
             会員情報
           </h2>
-          <form>
+          <form onSubmit={onSubmit}>
             <dl>
               <dt className="mt-6 mr-0 mb-1 text-[1rem] leading-5 font-bold">
                 <label htmlFor="email">メールアドレス</label>
               </dt>
+              <FormErrorMessage>
+                {errors.email && errors.email.message}
+              </FormErrorMessage>
               <dd className="ml-0">
                 <Input
                   style={{ backgroundColor: "#f3f3f3", cursor: "not-allowed" }}
@@ -97,7 +136,17 @@ const RegisterInfo = () => {
               </dt>
               <dd className="gap-3 flex items-end flex-row justify-start">
                 <div className="flex-1">
+                  <FormErrorMessage>
+                    {errors.lastName && errors.lastName.message}
+                  </FormErrorMessage>
                   <Input
+                    {...register("lastName", {
+                      required: "入力必須項目です。",
+                      maxLength: {
+                        value: 30,
+                        message: "30文字以内で入力してください",
+                      },
+                    })}
                     id="lastName"
                     name="lastName"
                     inputMode="text"
@@ -105,6 +154,9 @@ const RegisterInfo = () => {
                   />
                 </div>
                 <div className="flex-1">
+                  <FormErrorMessage>
+                    {errors.lastName && errors.lastName.message}
+                  </FormErrorMessage>
                   <Input
                     id="firstName"
                     name="firstName"
@@ -117,8 +169,18 @@ const RegisterInfo = () => {
                 <label htmlFor="password">パスワード</label>
               </dt>
               <dd className="ml-0">
+                <FormErrorMessage>
+                  {errors.password && errors.password.message}
+                </FormErrorMessage>
                 <div className="inline-flex relative w-full">
                   <Input
+                    {...register("password", {
+                      required: "半角英数字で6~12文字以内で入力してください。",
+                      pattern: {
+                        value: /^[a-zA-Z0-9]{6,12}$/,
+                        message: "半角英数字で6~12文字以内で入力してください。",
+                      },
+                    })}
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
@@ -140,8 +202,18 @@ const RegisterInfo = () => {
                 <label htmlFor="birthday">生年月日</label>
               </dt>
               <dd className="ml-0">
+                <FormErrorMessage>
+                  {errors.birthday && errors.birthday.message}
+                </FormErrorMessage>
                 <div className="inline-flex relative w-full">
                   <Input
+                    {...register("birthday", {
+                      required: "入力必須項目です。",
+                      maxLength: {
+                        value: 10,
+                        message: "入力が不正です。",
+                      },
+                    })}
                     id="birthday"
                     name="birthday"
                     type="date"
@@ -153,13 +225,19 @@ const RegisterInfo = () => {
                 性別
               </dt>
               <dd className="ml-0">
+                <FormErrorMessage>
+                  {errors.gender && errors.gender.message}
+                </FormErrorMessage>
                 <div className="flex flex-wrap flex-row">
                   <label
                     htmlFor="male"
                     className="inline-flex mr-6 items-center cursor-pointer align-middle ml-[-11px]"
                   >
-                    <span className="p-[9px] cursor-pointer">
+                    <span className="py-[5px] px-[9px] cursor-pointer">
                       <Input
+                        {...register("gender", {
+                          required: "選択必須項目です。",
+                        })}
                         id="male"
                         name="gender"
                         type="radio"
@@ -172,8 +250,11 @@ const RegisterInfo = () => {
                     htmlFor="female"
                     className="flex mr-6 items-center cursor-pointer align-middle ml-[-11px]"
                   >
-                    <span className="cursor-pointer p-[9px]">
+                    <span className="py-[5px] px-[9px] cursor-pointer">
                       <Input
+                        {...register("birthday", {
+                          required: "選択必須項目です。",
+                        })}
                         id="female"
                         name="gender"
                         type="radio"
@@ -188,8 +269,18 @@ const RegisterInfo = () => {
                 <label htmlFor="zipcode">郵便番号</label>
               </dt>
               <dd className="ml-0">
+                <FormErrorMessage>
+                  {errors.zipcode && errors.zipcode.message}
+                </FormErrorMessage>
                 <div className="inline-flex relative w-full">
                   <Input
+                    {...register("zipcode", {
+                      required: "入力必須項目です。",
+                      pattern: {
+                        value: /\d{3}-\d{4}$/,
+                        message: "正しい郵便番号を入力してください。",
+                      },
+                    })}
                     id="zipcode"
                     name="zipcode"
                     type="text"
@@ -220,26 +311,44 @@ const RegisterInfo = () => {
                 <label htmlFor="secret">秘密の質問</label>
               </dt>
               <dd className="ml-0">
-                <div className="inline-flex items-center w-full relative border-radius-[4px]" onClick={() => onSelectClick()}>
+                <FormErrorMessage>
+                  {errors.secret && errors.secret.message}
+                </FormErrorMessage>
+                <div
+                  className="inline-flex items-center w-full relative border-radius-[4px]"
+                  onClick={() => onSelectClick()}
+                >
                   <div className="pt-[1rem] pr-[32px] pb-[1rem] pl-[1.2rem] text-[1rem] leading-5 border border-[#ccc] border-solid w-full cursor-pointer">
                     選択してください
-                    {showSelect && 
-                      <CustomSelect/>
-                    }
+                    {showSelect && <CustomSelect />}
+                    <input
+                      {...register("secret", {
+                        required: "選択必須項目です。",
+                      })}
+                      id="secret"
+                      name="secret"
+                      type="hidden"
+                    />
                   </div>
-                  {!showSelect ?
-                    <TiArrowSortedDown className="absolute top-[calc(50%-1.5rem)] right-2 w-7 h-12 text-[1rem] text-[rgba(0,0,0,0.54)] cursor-pointer"/>
-                    :
-                    <TiArrowSortedUp className="absolute top-[calc(50%-1.5rem)] right-2 w-7 h-12 text-[1rem] text-[rgba(0,0,0,0.54)] cursor-pointer"/>
-                  }
+                  {!showSelect ? (
+                    <TiArrowSortedDown className="absolute top-[calc(50%-1.5rem)] right-2 w-7 h-12 text-[1rem] text-[rgba(0,0,0,0.54)] cursor-pointer" />
+                  ) : (
+                    <TiArrowSortedUp className="absolute top-[calc(50%-1.5rem)] right-2 w-7 h-12 text-[1rem] text-[rgba(0,0,0,0.54)] cursor-pointer" />
+                  )}
                 </div>
               </dd>
               <dt className="mt-6 mr-0 mb-1 text-[1rem] leading-5 font-bold">
                 <label htmlFor="secretAnswer">秘密の質問の答え</label>
               </dt>
               <dd className="ml-0">
+                <FormErrorMessage>
+                  {errors.secretAnswer && errors.secretAnswer.message}
+                </FormErrorMessage>
                 <div className="inline-flex relative w-full">
                   <Input
+                    {...register("secretAnswer", {
+                      required: "入力必須項目です。",
+                    })}
                     id="secretAnswer"
                     name="secretAnswer"
                     type="text"
@@ -248,7 +357,7 @@ const RegisterInfo = () => {
                 </div>
               </dd>
             </dl>
-            <SubmitButton/>
+            <SubmitButton />
           </form>
         </div>
       ) : (
