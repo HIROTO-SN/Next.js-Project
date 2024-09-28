@@ -2,7 +2,7 @@ import { ConfirmMailModel } from "@/models/ConfirmMail";
 import { connectDb } from "@/utils/mongodb";
 import { NextResponse } from "next/server";
 
-interface confReturn {
+interface confAPIReturn {
   message: string;
   status: number;
   error: string;
@@ -10,15 +10,15 @@ interface confReturn {
 }
 
 function createConfReturn(
-  email: string = "",
-  message: string = "トークン認証成功",
-  status: number = 200,
-  error: string = "",
-): confReturn {
+  email = "",
+  message = "トークン認証成功",
+  status = 200,
+  error = "",
+): confAPIReturn {
   return { email, message, status, error };
 }
 
-const handleReturn = ({ message, status, error, email }: confReturn) => {
+const handleReturn = ({ message, status, error, email }: confAPIReturn) => {
   return NextResponse.json(
     { message: message, error: error, email: email },
     { status: status },

@@ -1,19 +1,25 @@
 "use client";
 
-import { FormState, verifyUser } from "@/actions/account";
+import { retLoginState, verifyUser } from "@/actions/account";
 import AccountLongButton from "@/components/common/Buttons/AccountLongButton";
 import SnsAuthButton from "@/components/common/Buttons/SnsAuthButton";
+import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
 import { useBarRight } from "@/contexts/BarRightContext/BarRightContext";
-import { useHeader } from "@/contexts/HeaderContext/HeaderContext";
 import { createGoogleLoginUrl, createLineLoginUrl } from "@/utils/authUtils";
 import { useEffect, useState } from "react";
-import { useFormState } from "react-dom";
+import { useForm } from "react-hook-form";
 import { IoEye, IoEyeOff } from "react-icons/io5";
+
+// フォームで使用する変数の型を定義
+export interface formLoginInputs {
+  email: string;
+  password: string;
+}
 
 const LoginPage = () => {
   const [lineUrl, setLineUrl] = useState("");
   const [googleUrl, setGoogleUrl] = useState("");
-
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,8 +44,23 @@ const LoginPage = () => {
   // LINE認証設定情報
 
   // Form処理
-  const initialState: FormState = { error: "" };
-  const [state, formAction] = useFormState(verifyUser, initialState);
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<formLoginInputs>();
+
+  const onSubmit = handleSubmit(async (data) => {
+    if (submitLoading) return;
+    setSubmitLoading(true);
+    // バリデーションチェック
+    await verifyUser(data).then((res: retLoginState) => {
+      if (res) {
+      } else {
+        console.log("ログイン失敗");
+      }
+    });
+  });
 
   /**
    * ロード処理
@@ -50,7 +71,7 @@ const LoginPage = () => {
     setShowBarRight(true);
     const currentPath = window.location.pathname;
     if (currentPath) {
-      localStorage.setItem('urlFrom', currentPath);
+      localStorage.setItem("urlFrom", currentPath);
     }
   }, []);
 
@@ -59,7 +80,7 @@ const LoginPage = () => {
       <section className="py-8 px-2 m-auto max-w-[768px]">
         <div className="w-full mb-16">
           <div className="w-full my-0 mx-auto box-border">
-            <form className="m-0" action={formAction}>
+            <form className="m-0" onSubmit={onSubmit}>
               <h1 className="m-0 text-[1.2rem] font-bold leading-[1.4]">
                 ログイン
               </h1>
@@ -68,11 +89,25 @@ const LoginPage = () => {
                   <label htmlFor="email">メールアドレス</label>
                 </dt>
                 <dd>
+                  <FormErrorMessage>
+                    {errors.email && errors.email.message}
+                  </FormErrorMessage>
                   <div className="inline-flex relative w-full">
                     <input
+                      {...register("email", {
+                        required: "入力必須項目です。",
+                        maxLength: {
+                          value: 50,
+                          message: "50文字以内で入力してください",
+                        },
+                        pattern: {
+                          value:
+                            /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@+[a-zA-Z0-9-]+\.+[a-zA-Z0-9-]+$/,
+                          message: "メールアドレスの形式が違います",
+                        },
+                      })}
                       id="email"
                       name="email"
-                      type="email"
                       inputMode="text"
                       className="w-full font-normal pt-4 py-4 text-[0.8rem] leading-[1.4] shadow-none border border-solid border-[#ccc] p-4 rounded-sm"
                       style={{
@@ -87,8 +122,14 @@ const LoginPage = () => {
                   <label htmlFor="password">パスワード</label>
                 </dt>
                 <dd>
+                  <FormErrorMessage>
+                    {errors.password && errors.password.message}
+                  </FormErrorMessage>
                   <div className="inline-flex relative w-full">
                     <input
+                      {...register("password", {
+                        required: "入力必須項目です。",
+                      })}
                       id="password"
                       name="password"
                       type={showPassword ? "text" : "password"}
@@ -118,9 +159,6 @@ const LoginPage = () => {
                 </dd>
               </dl>
               <AccountLongButton />
-              {state.error !== "" && (
-                <p className="mt-2 text-red-500 text-sm">{state.error}</p>
-              )}
             </form>
           </div>
           <div className="relative mt-16">
