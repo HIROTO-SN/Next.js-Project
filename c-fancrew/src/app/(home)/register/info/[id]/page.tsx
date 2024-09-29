@@ -11,6 +11,7 @@ import { TiArrowSortedUp } from "react-icons/ti";
 import CustomSelect from "@/components/common/Design/CustomSelect";
 import { useForm } from "react-hook-form";
 import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
+import { dateValidationRules, nameValidationRules, passwordValidationRules, selectMessageRequired, zipCodeValidationRules } from "@/utils/config";
 
 // フォームで使用する変数の型を定義
 type formInputs = {
@@ -140,13 +141,7 @@ const RegisterInfo = () => {
                     {errors.lastName && errors.lastName.message}
                   </FormErrorMessage>
                   <Input
-                    {...register("lastName", {
-                      required: "入力必須項目です。",
-                      maxLength: {
-                        value: 30,
-                        message: "30文字以内で入力してください",
-                      },
-                    })}
+                    {...register("lastName", nameValidationRules)}
                     id="lastName"
                     name="lastName"
                     inputMode="text"
@@ -155,9 +150,10 @@ const RegisterInfo = () => {
                 </div>
                 <div className="flex-1">
                   <FormErrorMessage>
-                    {errors.lastName && errors.lastName.message}
+                    {errors.firstName && errors.firstName.message}
                   </FormErrorMessage>
                   <Input
+                    {...register("firstName", nameValidationRules)}
                     id="firstName"
                     name="firstName"
                     inputMode="text"
@@ -174,17 +170,10 @@ const RegisterInfo = () => {
                 </FormErrorMessage>
                 <div className="inline-flex relative w-full">
                   <Input
-                    {...register("password", {
-                      required: "半角英数字で6~12文字以内で入力してください。",
-                      pattern: {
-                        value: /^[a-zA-Z0-9]{6,12}$/,
-                        message: "半角英数字で6~12文字以内で入力してください。",
-                      },
-                    })}
+                    {...register("password", passwordValidationRules)}
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
-                    inputMode="text"
                   />
                   <span
                     className="left-auto right-[0.1rem] w-10 m-0 bottom-3 h-8 flex p-0 z-10 absolute items-center justify-center"
@@ -207,17 +196,10 @@ const RegisterInfo = () => {
                 </FormErrorMessage>
                 <div className="inline-flex relative w-full">
                   <Input
-                    {...register("birthday", {
-                      required: "入力必須項目です。",
-                      maxLength: {
-                        value: 10,
-                        message: "入力が不正です。",
-                      },
-                    })}
+                    {...register("birthday", dateValidationRules)}
                     id="birthday"
                     name="birthday"
                     type="date"
-                    inputMode="text"
                   />
                 </div>
               </dd>
@@ -235,9 +217,7 @@ const RegisterInfo = () => {
                   >
                     <span className="py-[5px] px-[9px] cursor-pointer">
                       <Input
-                        {...register("gender", {
-                          required: "選択必須項目です。",
-                        })}
+                        {...register("gender", { required: selectMessageRequired })}
                         id="male"
                         name="gender"
                         type="radio"
@@ -252,9 +232,7 @@ const RegisterInfo = () => {
                   >
                     <span className="py-[5px] px-[9px] cursor-pointer">
                       <Input
-                        {...register("birthday", {
-                          required: "選択必須項目です。",
-                        })}
+                        {...register("gender", { required: selectMessageRequired })}
                         id="female"
                         name="gender"
                         type="radio"
@@ -274,17 +252,10 @@ const RegisterInfo = () => {
                 </FormErrorMessage>
                 <div className="inline-flex relative w-full">
                   <Input
-                    {...register("zipcode", {
-                      required: "入力必須項目です。",
-                      pattern: {
-                        value: /\d{3}-\d{4}$/,
-                        message: "正しい郵便番号を入力してください。",
-                      },
-                    })}
+                    {...register("zipcode", zipCodeValidationRules)}
                     id="zipcode"
                     name="zipcode"
                     type="text"
-                    inputMode="text"
                     placeholder="1230001"
                   />
                 </div>
@@ -322,9 +293,7 @@ const RegisterInfo = () => {
                     選択してください
                     {showSelect && <CustomSelect />}
                     <input
-                      {...register("secret", {
-                        required: "選択必須項目です。",
-                      })}
+                      {...register("secret", { required: selectMessageRequired })}
                       id="secret"
                       name="secret"
                       type="hidden"
@@ -346,9 +315,7 @@ const RegisterInfo = () => {
                 </FormErrorMessage>
                 <div className="inline-flex relative w-full">
                   <Input
-                    {...register("secretAnswer", {
-                      required: "入力必須項目です。",
-                    })}
+                    {...register("secretAnswer", { required: selectMessageRequired })}
                     id="secretAnswer"
                     name="secretAnswer"
                     type="text"
