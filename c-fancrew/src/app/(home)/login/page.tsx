@@ -98,7 +98,6 @@ const LoginPage = () => {
                       {...register("email", emailValidationRules)}
                       id="email"
                       name="email"
-                      inputMode="text"
                       onChange={(e) => setEmail(e.target.value)}
                       value={email}
                     />
@@ -112,16 +111,11 @@ const LoginPage = () => {
                     {errors.password && errors.password.message}
                   </FormErrorMessage>
                   <div className="inline-flex relative w-full">
-                    <input
+                    <Input
                       {...register("password", { required: inputMessageRequired })}
                       id="password"
                       name="password"
                       type={showPassword ? "text" : "password"}
-                      inputMode="text"
-                      className="w-full font-normal pt-4 py-4 text-[0.8rem] leading-[1.4] shadow-none border border-solid border-[#ccc] p-4 rounded-sm"
-                      style={{
-                        fontFamily: "Roboto, Helvetica, Arial, sans-serif",
-                      }}
                       onChange={(e) => setPassword(e.target.value)}
                       value={password}
                     />
