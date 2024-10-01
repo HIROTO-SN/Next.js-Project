@@ -1,18 +1,16 @@
 "use client";
 
-import { useHeader } from "@/contexts/HeaderContext/HeaderContext";
-import React, { useEffect, useState } from "react";
-import style from "./Register.module.css";
-import SnsAuthButton from "@/components/common/Buttons/SnsAuthButton";
-import { createGoogleLoginUrl, createLineLoginUrl } from "@/utils/authUtils";
-import { useFormStatus } from "react-dom";
-import { useForm } from "react-hook-form";
 import { sendConfirmEmail } from "@/actions/account";
+import SnsAuthButton from "@/components/common/Buttons/SnsAuthButton";
 import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
 import { Input } from "@/components/common/Design/Input";
-import { useRouter } from "next/navigation";
-import { useEmail } from "@/contexts/RegisterContext/EmailContext";
 import { useBarRight } from "@/contexts/BarRightContext/BarRightContext";
+import { useEmail } from "@/contexts/RegisterContext/EmailContext";
+import { createGoogleLoginUrl, createLineLoginUrl } from "@/utils/authUtils";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import style from "./Register.module.css";
 
 // フォームで使用する変数の型を定義
 type formInputs = {
