@@ -11,7 +11,16 @@ import { TiArrowSortedUp } from "react-icons/ti";
 import CustomSelect from "@/components/common/Design/CustomSelect";
 import { useForm } from "react-hook-form";
 import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
-import { dateValidationRules, nameValidationRules, passwordValidationRules, selectMessageRequired, zipCodeValidationRules } from "@/utils/config";
+import {
+  dateValidationRules,
+  nameValidationRules,
+  passwordValidationRules,
+  selectMessageRequired,
+  zipCodeValidationRules,
+} from "@/utils/config/validationConf";
+import { useRegisterAccount } from "@/contexts/RegisterContext/RegisterAccount";
+import { genderList } from "@/utils/config/registerConf";
+import { Radio } from "@/components/common/Design/Radio";
 
 // フォームで使用する変数の型を定義
 type formInputs = {
@@ -32,9 +41,33 @@ const RegisterInfo = () => {
   const router = useRouter();
   const [loadFlg, setLoadFlg] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showSelect, setShowSelect] = useState(false);
+  const [defaultEmail, setDefaultEmail] = useState("");
+  const {
+    email,
+    lastName,
+    firstName,
+    password,
+    birthday,
+    gender,
+    zipcode,
+    mailDelivery,
+    secret,
+    secretAnswer,
+    handleChange,
+  } = useRegisterAccount(); // RegisterAccountContext
+
+  console.log(email);
+  console.log(lastName);
+  console.log(firstName);
+  console.log(password);
+  console.log(birthday);
+  console.log(gender);
+  console.log(zipcode);
+  console.log("mailDelivery: " + mailDelivery);
+  console.log(secret);
+  console.log(secretAnswer);
 
   /**
    * ロード処理
@@ -54,7 +87,7 @@ const RegisterInfo = () => {
       if (!ret) {
         router.push(`/register/error`);
       } else {
-        setEmail(ret);
+        setDefaultEmail(ret);
         setLoadFlg(true);
       }
     };
@@ -126,10 +159,11 @@ const RegisterInfo = () => {
               <dd className="ml-0">
                 <Input
                   style={{ backgroundColor: "#f3f3f3", cursor: "not-allowed" }}
-                  value={email}
+                  value={defaultEmail}
                   disabled
                   id="email"
                   name="email"
+                  onChange={handleChange}
                 />
               </dd>
               <dt className="mt-6 mr-0 mb-1 text-[1rem] leading-5 font-bold">
@@ -146,6 +180,8 @@ const RegisterInfo = () => {
                     name="lastName"
                     inputMode="text"
                     placeholder="苗字"
+                    value={lastName}
+                    onChange={handleChange}
                   />
                 </div>
                 <div className="flex-1">
@@ -158,6 +194,8 @@ const RegisterInfo = () => {
                     name="firstName"
                     inputMode="text"
                     placeholder="名前"
+                    value={firstName}
+                    onChange={handleChange}
                   />
                 </div>
               </dd>
@@ -174,6 +212,8 @@ const RegisterInfo = () => {
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={handleChange}
                   />
                   <span
                     className="left-auto right-[0.1rem] w-10 m-0 bottom-3 h-8 flex p-0 z-10 absolute items-center justify-center"
@@ -200,6 +240,8 @@ const RegisterInfo = () => {
                     id="birthday"
                     name="birthday"
                     type="date"
+                    value={String(birthday)}
+                    onChange={handleChange}
                   />
                 </div>
               </dd>
@@ -211,36 +253,17 @@ const RegisterInfo = () => {
                   {errors.gender && errors.gender.message}
                 </FormErrorMessage>
                 <div className="flex flex-wrap flex-row">
-                  <label
-                    htmlFor="male"
-                    className="inline-flex mr-6 items-center cursor-pointer align-middle ml-[-11px]"
-                  >
-                    <span className="py-[5px] px-[9px] cursor-pointer">
-                      <Input
-                        {...register("gender", { required: selectMessageRequired })}
-                        id="male"
-                        name="gender"
-                        type="radio"
-                        className="cursor-pointer"
-                      />
-                    </span>
-                    <span>男性</span>
-                  </label>
-                  <label
-                    htmlFor="female"
-                    className="flex mr-6 items-center cursor-pointer align-middle ml-[-11px]"
-                  >
-                    <span className="py-[5px] px-[9px] cursor-pointer">
-                      <Input
-                        {...register("gender", { required: selectMessageRequired })}
-                        id="female"
-                        name="gender"
-                        type="radio"
-                        className="cursor-pointer"
-                      />
-                    </span>
-                    <span>女性</span>
-                  </label>
+                  {genderList.map((item, i) => (
+                    <Radio
+                      key={i}
+                      onChange={handleChange}
+                      register={register}
+                      requiredProps={selectMessageRequired}
+                      item={item}
+                      radioName="gender"
+                      checked={gender === item.value}
+                    />
+                  ))}
                 </div>
               </dd>
               <dt className="mt-6 mr-0 mb-1 text-[1rem] leading-5 font-bold">
@@ -257,6 +280,8 @@ const RegisterInfo = () => {
                     name="zipcode"
                     type="text"
                     placeholder="1230001"
+                    onChange={handleChange}
+                    value={zipcode}
                   />
                 </div>
               </dd>
@@ -265,14 +290,15 @@ const RegisterInfo = () => {
               </dt>
               <dd className="ml-0">
                 <label
-                  htmlFor="mail-delivery"
+                  htmlFor="mailDelivery"
                   className="inline-flex items-center cursor-pointer ml-[-11px] mr-[16px]"
                 >
                   <span className="p-[9px]">
                     <Input
-                      id="mail-delivery"
-                      name="mail-delivery"
+                      id="mailDelivery"
+                      name="mailDelivery"
                       type="checkbox"
+                      onChange={handleChange}
                     />
                   </span>
                   <span className="text-[1rem]">配信を希望する</span>
@@ -293,10 +319,13 @@ const RegisterInfo = () => {
                     選択してください
                     {showSelect && <CustomSelect />}
                     <input
-                      {...register("secret", { required: selectMessageRequired })}
+                      {...register("secret", {
+                        required: selectMessageRequired,
+                      })}
                       id="secret"
                       name="secret"
                       type="hidden"
+                      onChange={handleChange}
                     />
                   </div>
                   {!showSelect ? (
@@ -315,11 +344,15 @@ const RegisterInfo = () => {
                 </FormErrorMessage>
                 <div className="inline-flex relative w-full">
                   <Input
-                    {...register("secretAnswer", { required: selectMessageRequired })}
+                    {...register("secretAnswer", {
+                      required: selectMessageRequired,
+                    })}
                     id="secretAnswer"
                     name="secretAnswer"
                     type="text"
                     inputMode="text"
+                    onChange={handleChange}
+                    value={secretAnswer}
                   />
                 </div>
               </dd>

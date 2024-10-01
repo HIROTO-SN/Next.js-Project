@@ -7,7 +7,7 @@ import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
 import { Input } from "@/components/common/Design/Input";
 import { useBarRight } from "@/contexts/BarRightContext/BarRightContext";
 import { createGoogleLoginUrl, createLineLoginUrl } from "@/utils/authUtils";
-import { emailValidationRules, inputMessageRequired } from "@/utils/config";
+import { emailValidationRules, inputMessageRequired } from "@/utils/config/validationConf";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { IoEye, IoEyeOff } from "react-icons/io5";
