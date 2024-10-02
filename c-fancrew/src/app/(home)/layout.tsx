@@ -7,7 +7,7 @@ import Logo from "@/components/common/Header/Logo";
 import { useBarRight } from "@/contexts/BarRightContext/BarRightContext";
 import { useHeader } from "@/contexts/HeaderContext/HeaderContext";
 import { EmailProvider } from "@/contexts/RegisterContext/EmailContext";
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { showHeader } = useHeader();

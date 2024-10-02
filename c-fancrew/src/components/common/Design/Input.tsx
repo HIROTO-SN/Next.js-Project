@@ -11,7 +11,7 @@ export const Input = forwardRef
       {...props}
       ref={ref}
       className="w-full font-normal pt-4 py-4 text-[0.9rem] leading-[1.4] shadow-none border border-solid border-[#ccc] p-4 rounded-sm"
-      inputMode={inputMode}
+      inputMode={inputMode || undefined}
       style={{
         fontFamily: "Roboto, Helvetica, Arial, sans-serif",
         ...style,
