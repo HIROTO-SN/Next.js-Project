@@ -3,7 +3,13 @@
 import { paramDataConfirmingMail, verifyConfirmEmail } from "@/actions/account";
 import { Input } from "@/components/common/Design/Input";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useLayoutEffect, useState } from "react";
+import {
+  MutableRefObject,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { OrbitProgress } from "react-loading-indicators";
 import { TiArrowSortedDown } from "react-icons/ti";
@@ -13,13 +19,14 @@ import { useForm } from "react-hook-form";
 import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
 import {
   dateValidationRules,
+  inputMessageRequired,
   nameValidationRules,
   passwordValidationRules,
   selectMessageRequired,
   zipCodeValidationRules,
 } from "@/utils/config/validationConf";
 import { useRegisterAccount } from "@/contexts/RegisterContext/RegisterAccount";
-import { genderList } from "@/utils/config/registerConf";
+import { genderList, secretListProp, secretSelectList } from "@/utils/config/registerConf";
 import { Radio } from "@/components/common/Design/Radio";
 
 // フォームで使用する変数の型を定義
@@ -39,6 +46,12 @@ const RegisterInfo = () => {
   const { id } = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<formInputs>(); // Form submit
+
   const [loadFlg, setLoadFlg] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -56,18 +69,14 @@ const RegisterInfo = () => {
     secret,
     secretAnswer,
     handleChange,
+    setFormValues,
   } = useRegisterAccount(); // RegisterAccountContext
+  const [secretHidden, setSecretHidden] = useState<number>(0);
+  // const inputSecretRef: MutableRefObject<HTMLInputElement | null> =
+  //   useRef(null);
 
-  console.log(email);
-  console.log(lastName);
-  console.log(firstName);
-  console.log(password);
-  console.log(birthday);
-  console.log(gender);
-  console.log(zipcode);
-  console.log("mailDelivery: " + mailDelivery);
-  console.log(secret);
-  console.log(secretAnswer);
+  console.log("secret: " + secret);
+  console.log("secretHidden: " + secretHidden);
 
   /**
    * ロード処理
@@ -95,17 +104,51 @@ const RegisterInfo = () => {
   }, []);
 
   /**
+   * secretの選択内容変更時に隠し項目のonChnageイベントを強制発火
+   */
+  // useEffect(() => {
+  //   console.log("secretHiddenのuseEffect発火");
+  //   if (inputSecretRef.current) {
+  //     const event = new Event("input", { bubbles: true });
+  //     inputSecretRef.current.value = String(secretHidden);
+  //     inputSecretRef.current.dispatchEvent(event);
+  //   }
+
+    // const input = document.getElementById("secret") as HTMLInputElement;
+    // if (input) {
+    //   // 変更イベントを手動で発火させる
+    //   console.log("inputがNullではない")
+    //   console.log("secret : " + input.value)
+
+    //   const event = new Event('change', { bubbles: true });
+    //   input.dispatchEvent(event);
+    // } else {
+    //   console.error("Element with id 'secret' not found.");
+    // }
+  // }, [secretHidden]);
+
+  /**
    * セレクトボックスクリックイベント
    */
   const onSelectClick = () => {
     setShowSelect(!showSelect);
   };
 
-  const {
-    handleSubmit,
-    register,
-    formState: { errors },
-  } = useForm<formInputs>();
+ 
+
+  const test = (e: any) => {
+    console.log("test発火");
+    console.log(e.target);
+  };
+
+  const handleItemClick = (item: secretListProp) => {
+    console.log("handleItemClick発火");
+    setSecretHidden(item.id);
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      secret: String(item.id),
+    }));
+  };
 
   const onSubmit = handleSubmit(async (data) => {
     if (submitLoading) return;
@@ -316,9 +359,15 @@ const RegisterInfo = () => {
                   onClick={() => onSelectClick()}
                 >
                   <div className="pt-[1rem] pr-[32px] pb-[1rem] pl-[1.2rem] text-[1rem] leading-5 border border-[#ccc] border-solid w-full cursor-pointer">
-                    選択してください
-                    {showSelect && <CustomSelect />}
-                    <input
+                    {secretSelectList.find((item) => item.id === secretHidden)
+                      ?.value ?? ""}
+                    {showSelect && (
+                      <CustomSelect
+                        selList={secretSelectList}
+                        handleClick={handleItemClick}
+                      />
+                    )}
+                    <Input
                       {...register("secret", {
                         required: selectMessageRequired,
                       })}
@@ -326,6 +375,7 @@ const RegisterInfo = () => {
                       name="secret"
                       type="hidden"
                       onChange={handleChange}
+                      value={secretSelectList.find((item) => item.id === secretHidden) ?.value ?? ""}
                     />
                   </div>
                   {!showSelect ? (
@@ -345,7 +395,7 @@ const RegisterInfo = () => {
                 <div className="inline-flex relative w-full">
                   <Input
                     {...register("secretAnswer", {
-                      required: selectMessageRequired,
+                      required: inputMessageRequired,
                     })}
                     id="secretAnswer"
                     name="secretAnswer"
