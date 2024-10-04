@@ -1,11 +1,15 @@
 "use server"
 
-import nodemailer from 'nodemailer';
-import { confirmEmailTemplate } from '../../templates/mail/confirmation';
 import { createConfirmationUrl } from '@/utils/commonUtils';
+import { ApplogToFile, ErrorlogToFile } from '@/utils/logger';
+import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
+import { confirmEmailTemplate } from '../../templates/mail/confirmation';
+import { formLoginInputs } from '@/app/(home)/login/page';
+import { LoginAPIReturn } from '@/app/api/login/route';
 
-export interface FormState {
+export interface retLoginState {
+  message: string;
   error: string;
 }
 
@@ -15,10 +19,11 @@ export interface FormState {
  * @param formData 
  * @returns 
  */
-export const verifyUser = async (state: FormState, formData: FormData) => {
+export const verifyUser = async (formData: formLoginInputs):Promise<retLoginState> => {
+  const email = formData.email;
+  const password = formData.password;
+
   try {
-    const email = formData.get("email");
-    const password = formData.get("password");
 
     const response = await fetch(`${process.env.API_URL}/login`, {
       method: "POST",
@@ -29,16 +34,12 @@ export const verifyUser = async (state: FormState, formData: FormData) => {
       body: JSON.stringify({ email, password }),
     })
 
-    const data = await response.json();
-    if (!response.ok) {
-      return data.error as FormState;
-    } else {
-      console.log("ログインに成功");
-      return state;
-    }
-  } catch (e) {
-    state.error = "ログイン認証に失敗しました";
-    return state as FormState;
+    const data: LoginAPIReturn = await response.json();
+    return { message: data. message, error: data.error};
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    ErrorlogToFile(`Login confirmation failed: email typed: ${email}, password typed: ${password}, message: ${errorMessage}`);
+    return { message: "ログイン認証失敗", error: errorMessage};
   }
 }
 
@@ -173,9 +174,10 @@ export interface paramDataConfirmingMail {
  * 本登録画面遷移時トークン認証
  * @param
  */
-export const verifyConfirmEmail = async (paramData: paramDataConfirmingMail): Promise<Boolean> => {
+export const verifyConfirmEmail = async (paramData: paramDataConfirmingMail): Promise<string> => {
+  const { id, param } = paramData;
+
   try {
-    const { id, param } = paramData;
     const url = `${process.env.API_URL}/register/confirmation?id=${id}&param=${param}`;
 
     const response = await fetch(url, {
@@ -185,14 +187,15 @@ export const verifyConfirmEmail = async (paramData: paramDataConfirmingMail): Pr
         "Content-Type": "application/json",
       }
     })
-
     const data = await response.json();
-    if (!response.ok) {
-      return false;
+    if (response.status !== 200) {
+      ApplogToFile(`Mail confirmation failed with status: ${response.status}, id: ${id}, token: ${param}, message: ${data.message}`);
+      return "";
     }
-
-    return true;
+    return data.email;
   } catch (error) {
-    return false;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    ErrorlogToFile(`Mail confirmation failed: id: ${id}, token: ${param}, message: ${errorMessage}`);
+    return "";
   }
 }
