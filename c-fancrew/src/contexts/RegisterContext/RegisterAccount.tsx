@@ -17,12 +17,13 @@ interface RegisterAccountFields {
   gender: string;
   zipcode: string;
   mailDelivery: Boolean;
-  secret: Number;
+  secret: string;
   secretAnswer: string;
 }
 
 interface RegisterAccountContextType extends RegisterAccountFields {
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  setFormValues: React.Dispatch<React.SetStateAction<RegisterAccountFields>>;
 }
 
 const RegisterAccountContext = createContext<
@@ -45,12 +46,14 @@ export const RegisterAccountProvider: React.FC<
     gender: "",
     zipcode: "",
     mailDelivery: false,
-    secret: 0,
+    secret: "",
     secretAnswer: "",
   });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+    console.log("name: " + name);
+    console.log("value: " + value);
     setFormValues((prevValues) => ({
       ...prevValues,
       [name]: type === "checkbox" ? checked : value,
@@ -58,7 +61,7 @@ export const RegisterAccountProvider: React.FC<
   };
 
   return (
-    <RegisterAccountContext.Provider value={{ ...formValues, handleChange }}>
+    <RegisterAccountContext.Provider value={{ ...formValues, handleChange, setFormValues }}>
       {children}
     </RegisterAccountContext.Provider>
   );
