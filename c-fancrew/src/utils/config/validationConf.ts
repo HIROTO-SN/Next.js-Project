@@ -40,10 +40,10 @@ export const nameValidationRules: ValidationProps = {
 };
 
 // パスワード
-const passwordCommonMessage = "半角英数字で6~12文字以内で入力してください。";
-const passwordPattern = /^[a-zA-Z0-9]{6,12}$/;
+const passwordCommonMessage = "半角英数記号(@#$%^&)を全て使用して6~12文字以内で入力してください。";
+const passwordPattern = /(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,12}/;
 export const passwordValidationRules: ValidationProps = {
-  required: { value: true, message: passwordCommonMessage },
+  required: { value: true, message: inputMessageRequired },
   maxLength: { value: 12, message: maxLengthMessage(12) },
   pattern: {
     value: passwordPattern,
@@ -59,10 +59,10 @@ export const dateValidationRules: ValidationProps = {
 
 // 郵便番号
 const zipCodeMessage = "正しい郵便番号を入力してください。";
-const zipCodePattern = /\d{3}-\d{4}$/;
+const zipCodePattern = /\d{7}$/;
 export const zipCodeValidationRules: ValidationProps = {
   required: { value: true, message: zipCodeMessage },
-  maxLength: { value: 8, message: zipCodeMessage },
+  maxLength: { value: 7, message: zipCodeMessage },
   pattern: {
     value: zipCodePattern,
     message: zipCodeMessage,

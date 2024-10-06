@@ -17,7 +17,7 @@ interface RegisterAccountFields {
   gender: string;
   zipcode: string;
   mailDelivery: Boolean;
-  secret: string;
+  secret: Number;
   secretAnswer: string;
 }
 
@@ -46,7 +46,7 @@ export const RegisterAccountProvider: React.FC<
     gender: "",
     zipcode: "",
     mailDelivery: false,
-    secret: "",
+    secret: 0,
     secretAnswer: "",
   });
 
