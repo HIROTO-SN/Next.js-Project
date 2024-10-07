@@ -3,15 +3,13 @@ import { UseFormRegister } from "react-hook-form";
 import { Input } from "./Input";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  register: UseFormRegister<any>;
-  requiredProps: string;
   item: { id: string; name: string, value: string }; 
   radioName: string
-  onChange: ChangeEventHandler<HTMLInputElement>;
+  onChangeHandler: ChangeEventHandler<HTMLInputElement>;
 }
 
 export const Radio = forwardRef<HTMLInputElement, InputProps>(
-  ({ register, requiredProps, item, radioName, onChange, ...props }, ref) => {
+  ({ item, radioName, onChangeHandler, ...props }, ref) => {
     return (
       <label
         htmlFor={item.id}
@@ -20,16 +18,13 @@ export const Radio = forwardRef<HTMLInputElement, InputProps>(
         <span className="py-[5px] px-[9px] cursor-pointer">
           <input
             {...props}
-            {...register(item.name, {
-              required: requiredProps,
-            })}
             id={item.id}
             name={radioName}
             ref={ref}
             value={item.value}
             type="radio"
             className="cursor-pointer"
-            onChange={onChange}
+            onChange={onChangeHandler}
           />
         </span>
         <span>{item.name}</span>
