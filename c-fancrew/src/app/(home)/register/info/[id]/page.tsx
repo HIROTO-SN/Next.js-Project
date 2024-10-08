@@ -1,26 +1,29 @@
 "use client";
 
 import { paramDataConfirmingMail, verifyConfirmEmail } from "@/actions/account";
-import { Input } from "@/components/common/Design/Input";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useLayoutEffect, useState } from "react";
-import { IoEye, IoEyeOff } from "react-icons/io5";
-import { OrbitProgress } from "react-loading-indicators";
-import { TiArrowSortedDown } from "react-icons/ti";
-import { TiArrowSortedUp } from "react-icons/ti";
 import CustomSelect from "@/components/common/Design/CustomSelect";
-import { useForm } from "react-hook-form";
 import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
+import { Input } from "@/components/common/Design/Input";
+import { Radio } from "@/components/common/Design/Radio";
+import { useRegisterAccount } from "@/contexts/RegisterContext/RegisterAccount";
+import { genderList, secretListProp, secretSelectList } from "@/utils/config/registerConf";
 import {
   dateValidationRules,
+  inputMessageRequired,
   nameValidationRules,
   passwordValidationRules,
   selectMessageRequired,
   zipCodeValidationRules,
 } from "@/utils/config/validationConf";
-import { useRegisterAccount } from "@/contexts/RegisterContext/RegisterAccount";
-import { genderList } from "@/utils/config/registerConf";
-import { Radio } from "@/components/common/Design/Radio";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import {
+  useLayoutEffect,
+  useState
+} from "react";
+import { useForm } from "react-hook-form";
+import { IoEye, IoEyeOff } from "react-icons/io5";
+import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
+import { OrbitProgress } from "react-loading-indicators";
 
 // フォームで使用する変数の型を定義
 type formInputs = {
@@ -39,13 +42,19 @@ const RegisterInfo = () => {
   const { id } = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+    setValue
+  } = useForm<formInputs>(); // Form submit
+
   const [loadFlg, setLoadFlg] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showSelect, setShowSelect] = useState(false);
   const [defaultEmail, setDefaultEmail] = useState("");
   const {
-    email,
     lastName,
     firstName,
     password,
@@ -53,23 +62,16 @@ const RegisterInfo = () => {
     gender,
     zipcode,
     mailDelivery,
-    secret,
     secretAnswer,
     handleChange,
+    setFormValues,
   } = useRegisterAccount(); // RegisterAccountContext
+  const [secretDisplay, setSecretDisplay] = useState<number>(0);
 
-  console.log(email);
-  console.log(lastName);
-  console.log(firstName);
-  console.log(password);
-  console.log(birthday);
-  console.log(gender);
-  console.log(zipcode);
-  console.log("mailDelivery: " + mailDelivery);
-  console.log(secret);
-  console.log(secretAnswer);
+  console.log("gender: " + gender + " (type: " + typeof gender + ")");
+  console.log("mailDelivery: " + mailDelivery + " (type: " + typeof mailDelivery + ")");
 
-  /**
+  /**s
    * ロード処理
    */
   useLayoutEffect(() => {
@@ -94,18 +96,21 @@ const RegisterInfo = () => {
     handleComfirmEmailCallback();
   }, []);
 
-  /**
-   * セレクトボックスクリックイベント
-   */
-  const onSelectClick = () => {
-    setShowSelect(!showSelect);
+  const handleItemClick = (item: secretListProp) => {
+    setSecretDisplay(item.id);
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      secret: item.id,
+    }));
+    handleSecretChange(item.id);
   };
 
-  const {
-    handleSubmit,
-    register,
-    formState: { errors },
-  } = useForm<formInputs>();
+  // 秘密の質問の値が変更されたときの処理
+  const handleSecretChange = (newValue: number) => {
+    setValue("secret", newValue, {
+      shouldValidate: false, // バリデーションを実行する
+    });
+  };
 
   const onSubmit = handleSubmit(async (data) => {
     if (submitLoading) return;
@@ -211,6 +216,7 @@ const RegisterInfo = () => {
                     {...register("password", passwordValidationRules)}
                     id="password"
                     name="password"
+                    maxLength={12}
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={handleChange}
@@ -256,9 +262,10 @@ const RegisterInfo = () => {
                   {genderList.map((item, i) => (
                     <Radio
                       key={i}
-                      onChange={handleChange}
-                      register={register}
-                      requiredProps={selectMessageRequired}
+                      onChangeHandler={handleChange}
+                      {...register("gender", {
+                        required: selectMessageRequired,
+                      })}
                       item={item}
                       radioName="gender"
                       checked={gender === item.value}
@@ -280,6 +287,7 @@ const RegisterInfo = () => {
                     name="zipcode"
                     type="text"
                     placeholder="1230001"
+                    maxLength={7}
                     onChange={handleChange}
                     value={zipcode}
                   />
@@ -313,14 +321,21 @@ const RegisterInfo = () => {
                 </FormErrorMessage>
                 <div
                   className="inline-flex items-center w-full relative border-radius-[4px]"
-                  onClick={() => onSelectClick()}
+                  onClick={() => setShowSelect(!showSelect)}
                 >
                   <div className="pt-[1rem] pr-[32px] pb-[1rem] pl-[1.2rem] text-[1rem] leading-5 border border-[#ccc] border-solid w-full cursor-pointer">
-                    選択してください
-                    {showSelect && <CustomSelect />}
+                    {secretSelectList.find((item) => item.id === secretDisplay)
+                      ?.value ?? ""}
+                    {showSelect && (
+                      <CustomSelect
+                        selList={secretSelectList}
+                        handleClick={handleItemClick}
+                      />
+                    )}
                     <input
                       {...register("secret", {
                         required: selectMessageRequired,
+                        validate: (value) => value !== 0 || selectMessageRequired,
                       })}
                       id="secret"
                       name="secret"
@@ -345,7 +360,7 @@ const RegisterInfo = () => {
                 <div className="inline-flex relative w-full">
                   <Input
                     {...register("secretAnswer", {
-                      required: selectMessageRequired,
+                      required: inputMessageRequired,
                     })}
                     id="secretAnswer"
                     name="secretAnswer"
