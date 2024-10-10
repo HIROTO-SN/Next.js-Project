@@ -69,7 +69,9 @@ const RegisterInfo = () => {
     setFormValues,
   } = useRegisterAccount(); // RegisterAccountContext
   const [secretDisplay, setSecretDisplay] = useState<number>(0);
+  const [maxDate, setMaxDate] = useState<Date>(new Date);
 
+  console.log("maxDate: " + maxDate + " (type: " + typeof maxDate + ")");
   console.log("lastName: " + lastName + " (type: " + typeof lastName + ")");
   console.log("firstName: " + firstName + " (type: " + typeof firstName + ")");
   console.log(
@@ -86,6 +88,9 @@ const RegisterInfo = () => {
    * ロード処理
    */
   useLayoutEffect(() => {
+    // 誕生日日付けの最大値設定（16歳以上）
+    setMaxDate(new Date(maxDate.getFullYear() - 16, maxDate.getMonth(), maxDate.getDate()));
+
     const handleComfirmEmailCallback = async () => {
       const param = searchParams.get("param");
       if (!param) {
@@ -158,7 +163,7 @@ const RegisterInfo = () => {
         border border-solid border-[#82ad24] flex py-[8px] px-[34px] text-center relative min-h-[60px] rounded-[4px] justify-center items-center"
       >
         <span className="flex-grow text-[#82ad24] text-[1rem] font-bold leading-5">
-          入力内容を確認する
+          {isConfirming ? "携帯番号認証に進む" : "入力内容を確認する"}
         </span>
       </button>
     );
@@ -278,6 +283,7 @@ const RegisterInfo = () => {
                     type="date"
                     value={String(birthday)}
                     onChange={handleChange}
+                    max={maxDate.toISOString().split('T')[0]}
                     style={isConfirming ? confirmStyle : undefined}
                     disabled={isConfirming}
                   />
@@ -421,6 +427,11 @@ const RegisterInfo = () => {
               </dd>
             </dl>
             <SubmitButton />
+            {isConfirming && (
+              <button type="button" onClick={() => { setIsConfirming(!isConfirming), setSubmitLoading(false)} }  className="text-[#82ad24] max-w-[335px] mt-[10px] mx-auto block text-center cursor-pointer px-[1rem] w-full min-h-[30px] bg-[#f7f3e8]">
+                <span className="w-full block text-center text-[0.8rem] underline">一つ前に戻る</span>          
+              </button>
+            )}
           </form>
         </div>
       ) : (
