@@ -16,7 +16,7 @@ interface RegisterAccountFields {
   birthday: Date;
   gender: string;
   zipcode: string;
-  mailDelivery: Boolean;
+  mailDelivery: boolean;
   secret: Number;
   secretAnswer: string;
 }

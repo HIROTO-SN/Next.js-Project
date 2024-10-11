@@ -6,7 +6,11 @@ import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
 import { Input } from "@/components/common/Design/Input";
 import { Radio } from "@/components/common/Design/Radio";
 import { useRegisterAccount } from "@/contexts/RegisterContext/RegisterAccount";
-import { genderList, secretListProp, secretSelectList } from "@/utils/config/registerConf";
+import {
+  genderList,
+  secretListProp,
+  secretSelectList,
+} from "@/utils/config/registerConf";
 import {
   dateValidationRules,
   inputMessageRequired,
@@ -16,10 +20,7 @@ import {
   zipCodeValidationRules,
 } from "@/utils/config/validationConf";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
-  useLayoutEffect,
-  useState
-} from "react";
+import { useLayoutEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
@@ -46,11 +47,12 @@ const RegisterInfo = () => {
     handleSubmit,
     register,
     formState: { errors },
-    setValue
+    setValue,
   } = useForm<formInputs>(); // Form submit
 
   const [loadFlg, setLoadFlg] = useState(false);
-  const [submitLoading, setSubmitLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false); //2度処理が回るのを防止
+  const [isConfirming, setIsConfirming] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showSelect, setShowSelect] = useState(false);
   const [defaultEmail, setDefaultEmail] = useState("");
@@ -67,14 +69,28 @@ const RegisterInfo = () => {
     setFormValues,
   } = useRegisterAccount(); // RegisterAccountContext
   const [secretDisplay, setSecretDisplay] = useState<number>(0);
+  const [maxDate, setMaxDate] = useState<Date>(new Date);
 
-  console.log("gender: " + gender + " (type: " + typeof gender + ")");
-  console.log("mailDelivery: " + mailDelivery + " (type: " + typeof mailDelivery + ")");
+  console.log("maxDate: " + maxDate + " (type: " + typeof maxDate + ")");
+  console.log("lastName: " + lastName + " (type: " + typeof lastName + ")");
+  console.log("firstName: " + firstName + " (type: " + typeof firstName + ")");
+  console.log(
+    "mailDelivery: " + mailDelivery + " (type: " + typeof mailDelivery + ")"
+  );
+
+  const confirmStyle = {
+    cursor: "not-allowed",
+    color: "rgba(0, 0, 0, 0.38) !important",
+    backgroundColor: "rgb(232, 240, 254) !important",
+  };
 
   /**s
    * ロード処理
    */
   useLayoutEffect(() => {
+    // 誕生日日付けの最大値設定（16歳以上）
+    setMaxDate(new Date(maxDate.getFullYear() - 16, maxDate.getMonth(), maxDate.getDate()));
+
     const handleComfirmEmailCallback = async () => {
       const param = searchParams.get("param");
       if (!param) {
@@ -115,6 +131,19 @@ const RegisterInfo = () => {
   const onSubmit = handleSubmit(async (data) => {
     if (submitLoading) return;
     setSubmitLoading(true);
+
+    if (!isConfirming) {
+      // 確認ページへ遷移する場合
+      // 確認ページのトップへスクロールする
+      window.scrollTo({
+        top: 0,
+        behavior: "instant",
+      });
+      setIsConfirming(true);
+    } else {
+      // 登録処理実行
+    }
+
     // // バリデーションチェック
     // await sendConfirmEmail(data.email as string).then((res: Boolean) => {
     //   if (res) {
@@ -134,7 +163,7 @@ const RegisterInfo = () => {
         border border-solid border-[#82ad24] flex py-[8px] px-[34px] text-center relative min-h-[60px] rounded-[4px] justify-center items-center"
       >
         <span className="flex-grow text-[#82ad24] text-[1rem] font-bold leading-5">
-          入力内容を確認する
+          {isConfirming ? "携帯番号認証に進む" : "入力内容を確認する"}
         </span>
       </button>
     );
@@ -187,6 +216,8 @@ const RegisterInfo = () => {
                     placeholder="苗字"
                     value={lastName}
                     onChange={handleChange}
+                    style={isConfirming ? confirmStyle : undefined}
+                    disabled={isConfirming}
                   />
                 </div>
                 <div className="flex-1">
@@ -201,6 +232,8 @@ const RegisterInfo = () => {
                     placeholder="名前"
                     value={firstName}
                     onChange={handleChange}
+                    style={isConfirming ? confirmStyle : undefined}
+                    disabled={isConfirming}
                   />
                 </div>
               </dd>
@@ -220,6 +253,8 @@ const RegisterInfo = () => {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={handleChange}
+                    style={isConfirming ? confirmStyle : undefined}
+                    disabled={isConfirming}
                   />
                   <span
                     className="left-auto right-[0.1rem] w-10 m-0 bottom-3 h-8 flex p-0 z-10 absolute items-center justify-center"
@@ -248,6 +283,9 @@ const RegisterInfo = () => {
                     type="date"
                     value={String(birthday)}
                     onChange={handleChange}
+                    max={maxDate.toISOString().split('T')[0]}
+                    style={isConfirming ? confirmStyle : undefined}
+                    disabled={isConfirming}
                   />
                 </div>
               </dd>
@@ -269,6 +307,7 @@ const RegisterInfo = () => {
                       item={item}
                       radioName="gender"
                       checked={gender === item.value}
+                      disabled={isConfirming}
                     />
                   ))}
                 </div>
@@ -290,6 +329,8 @@ const RegisterInfo = () => {
                     maxLength={7}
                     onChange={handleChange}
                     value={zipcode}
+                    style={isConfirming ? confirmStyle : undefined}
+                    disabled={isConfirming}
                   />
                 </div>
               </dd>
@@ -307,6 +348,8 @@ const RegisterInfo = () => {
                       name="mailDelivery"
                       type="checkbox"
                       onChange={handleChange}
+                      checked={mailDelivery}
+                      disabled={isConfirming}
                     />
                   </span>
                   <span className="text-[1rem]">配信を希望する</span>
@@ -321,12 +364,17 @@ const RegisterInfo = () => {
                 </FormErrorMessage>
                 <div
                   className="inline-flex items-center w-full relative border-radius-[4px]"
-                  onClick={() => setShowSelect(!showSelect)}
+                  onClick={() => {
+                    if (!isConfirming) {
+                      setShowSelect(!showSelect);
+                    }
+                  }}
+                  style={isConfirming ? confirmStyle : undefined}
                 >
                   <div className="pt-[1rem] pr-[32px] pb-[1rem] pl-[1.2rem] text-[1rem] leading-5 border border-[#ccc] border-solid w-full cursor-pointer">
                     {secretSelectList.find((item) => item.id === secretDisplay)
                       ?.value ?? ""}
-                    {showSelect && (
+                    {showSelect && !isConfirming && (
                       <CustomSelect
                         selList={secretSelectList}
                         handleClick={handleItemClick}
@@ -335,7 +383,8 @@ const RegisterInfo = () => {
                     <input
                       {...register("secret", {
                         required: selectMessageRequired,
-                        validate: (value) => value !== 0 || selectMessageRequired,
+                        validate: (value) =>
+                          value !== 0 || selectMessageRequired,
                       })}
                       id="secret"
                       name="secret"
@@ -344,7 +393,10 @@ const RegisterInfo = () => {
                     />
                   </div>
                   {!showSelect ? (
-                    <TiArrowSortedDown className="absolute top-[calc(50%-1.5rem)] right-2 w-7 h-12 text-[1rem] text-[rgba(0,0,0,0.54)] cursor-pointer" />
+                    <TiArrowSortedDown 
+                      className="absolute top-[calc(50%-1.5rem)] right-2 w-7 h-12 text-[1rem] text-[rgba(0,0,0,0.54)] cursor-pointer" 
+                      style={isConfirming ? { color: "rgba(0, 0, 0, 0.38" } : undefined}
+                    />
                   ) : (
                     <TiArrowSortedUp className="absolute top-[calc(50%-1.5rem)] right-2 w-7 h-12 text-[1rem] text-[rgba(0,0,0,0.54)] cursor-pointer" />
                   )}
@@ -368,11 +420,18 @@ const RegisterInfo = () => {
                     inputMode="text"
                     onChange={handleChange}
                     value={secretAnswer}
+                    style={isConfirming ? confirmStyle : undefined}
+                    disabled={isConfirming}
                   />
                 </div>
               </dd>
             </dl>
             <SubmitButton />
+            {isConfirming && (
+              <button type="button" onClick={() => { setIsConfirming(!isConfirming), setSubmitLoading(false)} }  className="text-[#82ad24] max-w-[335px] mt-[10px] mx-auto block text-center cursor-pointer px-[1rem] w-full min-h-[30px] bg-[#f7f3e8]">
+                <span className="w-full block text-center text-[0.8rem] underline">一つ前に戻る</span>          
+              </button>
+            )}
           </form>
         </div>
       ) : (
