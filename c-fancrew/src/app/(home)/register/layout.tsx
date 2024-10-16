@@ -9,7 +9,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <>
       <PageConfirm currentUrl={getLastSegmentUrl(currentPath)}/>
-      <section className="pt-[2rem] pr-0 pb-[4rem] m-auto max-w-[768px]">
+      <section className="pt-[2rem] pr-0 pb-[4rem] m-auto max-w-[768px] min-h-[80vh]">
         <RegisterAccountProvider>
           {children}
         </RegisterAccountProvider>
