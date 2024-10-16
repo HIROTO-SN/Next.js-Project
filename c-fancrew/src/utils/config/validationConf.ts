@@ -68,3 +68,15 @@ export const zipCodeValidationRules: ValidationProps = {
     message: zipCodeMessage,
   },
 };
+
+// 電話番号
+const telPattern = /^\d{11}$/;
+const telCommonMessage = "半角数字の11桁で入力してください。";
+export const telValidationRules: ValidationProps = {
+  required: { value: true, message: telCommonMessage },
+  maxLength: { value: 11, message: maxLengthMessage(11) },
+  pattern: {
+    value: telPattern,
+    message: telCommonMessage,
+  },
+};
