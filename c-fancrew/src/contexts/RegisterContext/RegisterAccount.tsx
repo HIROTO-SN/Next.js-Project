@@ -19,6 +19,7 @@ interface RegisterAccountFields {
   mailDelivery: boolean;
   secret: Number;
   secretAnswer: string;
+  tel: number | null;
 }
 
 interface RegisterAccountContextType extends RegisterAccountFields {
@@ -48,12 +49,11 @@ export const RegisterAccountProvider: React.FC<
     mailDelivery: false,
     secret: 0,
     secretAnswer: "",
+    tel: null,
   });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    console.log("name: " + name);
-    console.log("value: " + value);
     setFormValues((prevValues) => ({
       ...prevValues,
       [name]: type === "checkbox" ? checked : value,
