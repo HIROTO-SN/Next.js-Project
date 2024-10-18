@@ -69,34 +69,31 @@ const RegisterInfo = () => {
     setFormValues,
   } = useRegisterAccount(); // RegisterAccountContext
   const [secretDisplay, setSecretDisplay] = useState<number>(0);
-  const [maxDate, setMaxDate] = useState<Date>(new Date);
-
-  console.log("maxDate: " + maxDate + " (type: " + typeof maxDate + ")");
-  console.log("lastName: " + lastName + " (type: " + typeof lastName + ")");
-  console.log("firstName: " + firstName + " (type: " + typeof firstName + ")");
-  console.log(
-    "mailDelivery: " + mailDelivery + " (type: " + typeof mailDelivery + ")"
-  );
-
+  const [maxDate, setMaxDate] = useState<Date>(new Date());
   const confirmStyle = {
     cursor: "not-allowed",
     color: "rgba(0, 0, 0, 0.38) !important",
     backgroundColor: "rgb(232, 240, 254) !important",
   };
 
-  /**s
+  /**
    * ロード処理
    */
   useLayoutEffect(() => {
     // 誕生日日付けの最大値設定（16歳以上）
-    setMaxDate(new Date(maxDate.getFullYear() - 16, maxDate.getMonth(), maxDate.getDate()));
+    setMaxDate(
+      new Date(
+        maxDate.getFullYear() - 16,
+        maxDate.getMonth(),
+        maxDate.getDate()
+      )
+    );
 
     const handleComfirmEmailCallback = async () => {
       const param = searchParams.get("param");
       if (!param) {
         router.push(`/register/error`);
       }
-
       const paramData: paramDataConfirmingMail = {
         id: Number(id),
         param: param ? param : "",
@@ -112,6 +109,11 @@ const RegisterInfo = () => {
     handleComfirmEmailCallback();
   }, []);
 
+  /**
+   * 項目がクリックされたときに実行される関数
+   *
+   * @param item - 選択された秘密の質問の項目 (secretListProp 型)
+   */
   const handleItemClick = (item: secretListProp) => {
     setSecretDisplay(item.id);
     setFormValues((prevValues) => ({
@@ -121,6 +123,21 @@ const RegisterInfo = () => {
     handleSecretChange(item.id);
   };
 
+  /**
+   * ラジオボタンがクリックされたときに実行される関数
+   *
+   * @param e - クリックされたラジオボタンのイベント (React.ChangeEvent<HTMLInputElement>)
+   */
+  const handleRadioClick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      gender: e.target.value,
+    }));
+    setValue("gender", e.target.value, {
+      shouldValidate: false, // バリデーションを実行する
+    });
+  };
+
   // 秘密の質問の値が変更されたときの処理
   const handleSecretChange = (newValue: number) => {
     setValue("secret", newValue, {
@@ -128,7 +145,7 @@ const RegisterInfo = () => {
     });
   };
 
-  const onSubmit = handleSubmit(async (data) => {
+  const onSubmit = handleSubmit(async () => {
     if (submitLoading) return;
     setSubmitLoading(true);
 
@@ -139,20 +156,12 @@ const RegisterInfo = () => {
         top: 0,
         behavior: "instant",
       });
+      setSubmitLoading(false);
       setIsConfirming(true);
     } else {
-      // 登録処理実行
+      // 電話番号認証へ
+      router.replace("/register/tel");
     }
-
-    // // バリデーションチェック
-    // await sendConfirmEmail(data.email as string).then((res: Boolean) => {
-    //   if (res) {
-    //     setEmail(data.email);
-    //     router.push("/register/mail-confirm");
-    //   } else {
-    //     console.log("メール送信失敗");
-    //   }
-    // });
   });
 
   const SubmitButton = () => {
@@ -283,7 +292,7 @@ const RegisterInfo = () => {
                     type="date"
                     value={String(birthday)}
                     onChange={handleChange}
-                    max={maxDate.toISOString().split('T')[0]}
+                    max={maxDate.toISOString().split("T")[0]}
                     style={isConfirming ? confirmStyle : undefined}
                     disabled={isConfirming}
                   />
@@ -300,16 +309,22 @@ const RegisterInfo = () => {
                   {genderList.map((item, i) => (
                     <Radio
                       key={i}
-                      onChangeHandler={handleChange}
-                      {...register("gender", {
-                        required: selectMessageRequired,
-                      })}
                       item={item}
-                      radioName="gender"
-                      checked={gender === item.value}
+                      radioName="genderRadio"
+                      onChange={(e) => handleRadioClick(e)}
                       disabled={isConfirming}
+                      checked={gender === item.value}
                     />
                   ))}
+                  <input
+                    {...register("gender", {
+                      required: selectMessageRequired,
+                    })}
+                    id="gender"
+                    name="gender"
+                    type="hidden"
+                    onChange={handleChange}
+                  />
                 </div>
               </dd>
               <dt className="mt-6 mr-0 mb-1 text-[1rem] leading-5 font-bold">
@@ -393,9 +408,13 @@ const RegisterInfo = () => {
                     />
                   </div>
                   {!showSelect ? (
-                    <TiArrowSortedDown 
-                      className="absolute top-[calc(50%-1.5rem)] right-2 w-7 h-12 text-[1rem] text-[rgba(0,0,0,0.54)] cursor-pointer" 
-                      style={isConfirming ? { color: "rgba(0, 0, 0, 0.38" } : undefined}
+                    <TiArrowSortedDown
+                      className="absolute top-[calc(50%-1.5rem)] right-2 w-7 h-12 text-[1rem] text-[rgba(0,0,0,0.54)] cursor-pointer"
+                      style={
+                        isConfirming
+                          ? { color: "rgba(0, 0, 0, 0.38" }
+                          : undefined
+                      }
                     />
                   ) : (
                     <TiArrowSortedUp className="absolute top-[calc(50%-1.5rem)] right-2 w-7 h-12 text-[1rem] text-[rgba(0,0,0,0.54)] cursor-pointer" />
@@ -428,8 +447,16 @@ const RegisterInfo = () => {
             </dl>
             <SubmitButton />
             {isConfirming && (
-              <button type="button" onClick={() => { setIsConfirming(!isConfirming), setSubmitLoading(false)} }  className="text-[#82ad24] max-w-[335px] mt-[10px] mx-auto block text-center cursor-pointer px-[1rem] w-full min-h-[30px] bg-[#f7f3e8]">
-                <span className="w-full block text-center text-[0.8rem] underline">一つ前に戻る</span>          
+              <button
+                type="button"
+                onClick={() => {
+                  setIsConfirming(!isConfirming), setSubmitLoading(false);
+                }}
+                className="text-[#82ad24] max-w-[335px] mt-[10px] mx-auto block text-center cursor-pointer px-[1rem] w-full min-h-[30px] bg-[#f7f3e8]"
+              >
+                <span className="w-full block text-center text-[0.8rem] underline">
+                  一つ前に戻る
+                </span>
               </button>
             )}
           </form>

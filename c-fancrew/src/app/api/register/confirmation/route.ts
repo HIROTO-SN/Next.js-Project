@@ -34,8 +34,6 @@ export const GET = async (req: Request) => {
   try {
     // データベースに接続
     await connectDb();
-    console.log("接続")
-
 
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
