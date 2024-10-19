@@ -6,7 +6,6 @@ import {
   verifyOAuthCallback,
 } from "@/actions/account";
 import Authenticating from "@/components/common/Authenticating/Authenticating";
-import { CircularProgress } from "@mui/material";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -30,7 +29,6 @@ const AuthCallback = () => {
         return;
       }
       const ret: retOauthVerification = await verifyOAuthCallback(paramData);
-      console.log(ret);
     };
     handleOAuthCallback();
   }, []);
