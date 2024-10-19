@@ -76,7 +76,6 @@ const RegisterInfo = () => {
     backgroundColor: "rgb(232, 240, 254) !important",
   };
 
-  /**
    * ロード処理
    */
   useLayoutEffect(() => {
@@ -314,6 +313,7 @@ const RegisterInfo = () => {
                       onChange={(e) => handleRadioClick(e)}
                       disabled={isConfirming}
                       checked={gender === item.value}
+                      disabled={isConfirming}
                     />
                   ))}
                   <input
