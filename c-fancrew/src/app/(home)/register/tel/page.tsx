@@ -1,10 +1,12 @@
 "use client";
 
+import { verifySMS } from "@/actions/account";
 import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
 import { Input } from "@/components/common/Design/Input";
 import { useRegisterAccount } from "@/contexts/RegisterContext/RegisterAccount";
 import { telValidationRules } from "@/utils/config/validationConf";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 // フォームで使用する変数の型を定義
@@ -13,14 +15,27 @@ type formInputs = {
 };
 
 const ConfirmTel = () => {
-  const { handleChange } = useRegisterAccount(); // RegisterAccountContext
+  const { tel, handleChange } = useRegisterAccount(); // RegisterAccountContext
   const {
     handleSubmit,
     register,
     formState: { errors },
   } = useForm<formInputs>(); // Form submit
+  const [submitLoading, setSubmitLoading] = useState(false); //2度処理が回るのを防止
 
-  const onSubmit = handleSubmit(async () => {});
+  const onSubmit = handleSubmit(async () => {
+    if (submitLoading) return;
+    setSubmitLoading(true);
+
+    const newTel = `+81${String(tel).slice(1)}`;
+    await verifySMS(newTel).then((res: string) => {
+      if (res) {
+        console.log("SMS送信成功");
+      } else {
+        console.log("SMS送信失敗");
+      }
+    });
+  });
 
   const SubmitButton = () => {
     return (
@@ -53,8 +68,8 @@ const ConfirmTel = () => {
           <dd className="ml-0">
             <Input
               {...register("tel", telValidationRules)}
-              id="email"
-              name="email"
+              id="tel"
+              name="tel"
               type="text"
               inputMode="text"
               onChange={handleChange}

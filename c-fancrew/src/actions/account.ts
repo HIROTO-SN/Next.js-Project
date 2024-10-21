@@ -1,12 +1,13 @@
 "use server"
 
-import { createConfirmationUrl } from '@/utils/commonUtils';
+import { createConfirmationUrl, generateRandom6Digit } from '@/utils/commonUtils';
 import { ApplogToFile, ErrorlogToFile } from '@/utils/logger';
 import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
 import { confirmEmailTemplate } from '../../templates/mail/confirmation';
 import { formLoginInputs } from '@/app/(home)/login/page';
 import { LoginAPIReturn } from '@/app/api/login/route';
+import twilio from 'twilio';
 
 export interface retLoginState {
   message: string;
@@ -196,6 +197,32 @@ export const verifyConfirmEmail = async (paramData: paramDataConfirmingMail): Pr
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     ErrorlogToFile(`Mail confirmation failed: id: ${id}, token: ${param}, message: ${errorMessage}`);
+    return "";
+  }
+}
+
+/**
+ * 電話番号認証
+ * @param tel 電話番号
+ */
+export const verifySMS = async (tel: string): Promise<string> => {
+
+  try {
+    const client = twilio(
+      process.env.TWILIO_ACCOUNT_SID!,
+      process.env.TWILIO_AUTH_TOKEN!
+    );
+
+    const message = await client.messages.create({
+      body: `Your verification code is: ${generateRandom6Digit()}`,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: tel,
+    });
+
+    return message.sid;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    ErrorlogToFile(`SMS send failed: phone number: ${tel}, message: ${errorMessage}`);
     return "";
   }
 }

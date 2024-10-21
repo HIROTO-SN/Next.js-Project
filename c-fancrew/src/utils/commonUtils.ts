@@ -10,6 +10,17 @@ export const generateUUID = () => {
 };
 
 /**
+ * 6桁のランダムな数値を作成する
+ * @return {String} : ランダムな6桁の数値
+ */
+export const generateRandom6Digit = () => {
+  const min = 100000; // 最小6桁
+  const max = 999999; // 最大6桁
+  const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+  return randomNum.toString();
+};
+
+/**
 * URLの最後のスラッシュ以降の文字列を取得する関数
  * @param {string} url - 対象のURL
  * @return {string} - スラッシュ以降の文字列
