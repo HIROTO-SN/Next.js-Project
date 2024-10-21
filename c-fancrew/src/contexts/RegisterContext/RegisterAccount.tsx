@@ -19,7 +19,7 @@ interface RegisterAccountFields {
   mailDelivery: boolean;
   secret: Number;
   secretAnswer: string;
-  tel: number | null;
+  tel: Number;
 }
 
 interface RegisterAccountContextType extends RegisterAccountFields {
@@ -49,7 +49,7 @@ export const RegisterAccountProvider: React.FC<
     mailDelivery: false,
     secret: 0,
     secretAnswer: "",
-    tel: null,
+    tel: 0,
   });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {

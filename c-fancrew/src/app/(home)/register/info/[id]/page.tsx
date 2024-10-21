@@ -25,6 +25,7 @@ import { useForm } from "react-hook-form";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
 import { OrbitProgress } from "react-loading-indicators";
+import styles from '../../Register.module.css';
 
 // フォームで使用する変数の型を定義
 type formInputs = {
@@ -76,7 +77,7 @@ const RegisterInfo = () => {
     backgroundColor: "rgb(232, 240, 254) !important",
   };
 
-  /**
+  /*
    * ロード処理
    */
   useLayoutEffect(() => {
@@ -294,6 +295,7 @@ const RegisterInfo = () => {
                     onChange={handleChange}
                     max={maxDate.toISOString().split("T")[0]}
                     style={isConfirming ? confirmStyle : undefined}
+                    addClass={styles.inputDateNoIndicator}
                     disabled={isConfirming}
                   />
                 </div>
