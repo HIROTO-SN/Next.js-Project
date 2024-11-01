@@ -212,19 +212,34 @@ export const verifySMS = async (tel: string): Promise<string> => {
     const sessionId = uuidv4(); // ユーザーごとに一意のセッションID生成
     const otp = generateRandom6Digit();
 
-    // RedisにOTPを5分間保存（キー: sessionId, 値: otp）
-    // await redis.set(sessionId, otp, 'EX', Number(validMins) * 60); // 300秒（5分）の有効期限
+    // データベースへOTP保存（キー: sessionId, 値: otp）
+    const url = `${process.env.API_URL}/register/sms`;
+    const response = await fetch(url, {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ sessionId, otp }),
+    })
 
+    if (response.status !== 200) {
+      return "";
+    }
+    
     const client = twilio(
       process.env.TWILIO_ACCOUNT_SID!,
       process.env.TWILIO_AUTH_TOKEN!
     );
-
+    
+    console.log("    await client.messages.create前      ");
     await client.messages.create({
       body: `${otp} ${smsVerificationMsg}`,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: tel,
     });
+
+    console.log("    await client.messages.create後    ");
 
     return sessionId;
   } catch (error) {
