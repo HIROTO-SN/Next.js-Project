@@ -1,13 +1,14 @@
 "use server"
 
-import { createConfirmationUrl, generateRandom6Digit } from '@/utils/commonUtils';
-import { ApplogToFile, ErrorlogToFile } from '@/utils/logger';
-import nodemailer from 'nodemailer';
-import { v4 as uuidv4 } from 'uuid';
-import { confirmEmailTemplate } from '../../templates/mail/confirmation';
 import { formLoginInputs } from '@/app/(home)/login/page';
 import { LoginAPIReturn } from '@/app/api/login/route';
+import { createConfirmationUrl, generateRandom6Digit } from '@/utils/commonUtils';
+import { smsVerificationMsg } from '@/utils/config/registerConf';
+import { ApplogToFile, ErrorlogToFile } from '@/utils/logger';
+import nodemailer from 'nodemailer';
 import twilio from 'twilio';
+import { v4 as uuidv4 } from 'uuid';
+import { confirmEmailTemplate } from '../../templates/mail/confirmation';
 
 export interface retLoginState {
   message: string;
@@ -20,7 +21,7 @@ export interface retLoginState {
  * @param formData 
  * @returns 
  */
-export const verifyUser = async (formData: formLoginInputs):Promise<retLoginState> => {
+export const verifyUser = async (formData: formLoginInputs): Promise<retLoginState> => {
   const email = formData.email;
   const password = formData.password;
 
@@ -36,11 +37,11 @@ export const verifyUser = async (formData: formLoginInputs):Promise<retLoginStat
     })
 
     const data: LoginAPIReturn = await response.json();
-    return { message: data. message, error: data.error};
+    return { message: data.message, error: data.error };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     ErrorlogToFile(`Login confirmation failed: email typed: ${email}, password typed: ${password}, message: ${errorMessage}`);
-    return { message: "ログイン認証失敗", error: errorMessage};
+    return { message: "ログイン認証失敗", error: errorMessage };
   }
 }
 
@@ -208,18 +209,39 @@ export const verifyConfirmEmail = async (paramData: paramDataConfirmingMail): Pr
 export const verifySMS = async (tel: string): Promise<string> => {
 
   try {
+    const sessionId = uuidv4(); // ユーザーごとに一意のセッションID生成
+    const otp = generateRandom6Digit();
+
+    // データベースへOTP保存（キー: sessionId, 値: otp）
+    const url = `${process.env.API_URL}/register/sms`;
+    const response = await fetch(url, {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ sessionId, otp }),
+    })
+
+    if (response.status !== 200) {
+      return "";
+    }
+    
     const client = twilio(
       process.env.TWILIO_ACCOUNT_SID!,
       process.env.TWILIO_AUTH_TOKEN!
     );
-
-    const message = await client.messages.create({
-      body: `Your verification code is: ${generateRandom6Digit()}`,
+    
+    console.log("    await client.messages.create前      ");
+    await client.messages.create({
+      body: `${otp} ${smsVerificationMsg}`,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: tel,
     });
 
-    return message.sid;
+    console.log("    await client.messages.create後    ");
+
+    return sessionId;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     ErrorlogToFile(`SMS send failed: phone number: ${tel}, message: ${errorMessage}`);

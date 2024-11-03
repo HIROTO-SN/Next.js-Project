@@ -5,7 +5,6 @@ import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
 import { Input } from "@/components/common/Design/Input";
 import { useRegisterAccount } from "@/contexts/RegisterContext/RegisterAccount";
 import { telValidationRules } from "@/utils/config/validationConf";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -22,6 +21,7 @@ const ConfirmTel = () => {
     formState: { errors },
   } = useForm<formInputs>(); // Form submit
   const [submitLoading, setSubmitLoading] = useState(false); //2度処理が回るのを防止
+  const [isSmsSent, setIsSmsSent] = useState(false); //SMSが送信されたかどうか
 
   const onSubmit = handleSubmit(async () => {
     if (submitLoading) return;
@@ -30,8 +30,11 @@ const ConfirmTel = () => {
     const newTel = `+81${String(tel).slice(1)}`;
     await verifySMS(newTel).then((res: string) => {
       if (res) {
-        console.log("SMS送信成功");
+        setIsSmsSent(true);
+        setSubmitLoading(false);
+        console.log("SMS送信成功: " + res);
       } else {
+        setIsSmsSent(false);
         console.log("SMS送信失敗");
       }
     });
@@ -45,7 +48,10 @@ const ConfirmTel = () => {
         border border-solid border-[#82ad24] flex py-[8px] px-[34px] text-center relative min-h-[60px] rounded-[4px] justify-center items-center"
       >
         <span className="flex-grow text-[#82ad24] text-[1rem] font-bold leading-5">
-          認証用SMSを送信する
+        {isSmsSent ? 
+          "認証を完了する" :
+          "認証用SMSを送信する"
+        }          
         </span>
       </button>
     );
@@ -55,7 +61,10 @@ const ConfirmTel = () => {
     <div className="w-full my-4 mx-0">
       <h1 className="text-[1.2rem] font-bold leading-5 mb-6">携帯電話認証</h1>
       <p className="leading-4 text-[1rem] text-[#323232]">
-        携帯の電話番号をハイフン無しの11桁で入力してください。
+        {isSmsSent ? 
+          "SMSで届いた認証番号を入力してください。" :
+          "携帯の電話番号をハイフン無しの11桁で入力してください。"
+        }
       </p>
       <form onSubmit={onSubmit}>
         <dl>
