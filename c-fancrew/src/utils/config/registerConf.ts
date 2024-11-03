@@ -26,3 +26,7 @@ export const secretSelectList: secretListProp[] = [
   { id: 7, value: "子供時代のあだ名は？"},
   { id: 8, value: "最初に乗った車の車種は？"},
 ];
+
+// SMS関連
+export const validMins = 5;
+export const smsVerificationMsg = `is your verification code, valid for ${validMins} minutes`;
