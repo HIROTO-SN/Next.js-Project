@@ -4,24 +4,28 @@ import { verifySMS } from "@/actions/account";
 import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
 import { Input } from "@/components/common/Design/Input";
 import { useRegisterAccount } from "@/contexts/RegisterContext/RegisterAccount";
-import { telValidationRules } from "@/utils/config/validationConf";
+import { telConfirmationValidationRules, telValidationRules } from "@/utils/config/validationConf";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 // フォームで使用する変数の型を定義
 type formInputs = {
   tel: Number;
+  confirmation: Number;
 };
 
 const ConfirmTel = () => {
-  const { tel, handleChange } = useRegisterAccount(); // RegisterAccountContext
+  const { tel, confirmation, handleChange } = useRegisterAccount(); // RegisterAccountContext
   const {
     handleSubmit,
     register,
     formState: { errors },
   } = useForm<formInputs>(); // Form submit
+
   const [submitLoading, setSubmitLoading] = useState(false); //2度処理が回るのを防止
   const [isSmsSent, setIsSmsSent] = useState(false); //SMSが送信されたかどうか
+  const [inputStr, setInputStr] = useState("tel");
+  const [confirmationError, setconfirmationError] = useState("");
 
   const onSubmit = handleSubmit(async () => {
     if (submitLoading) return;
@@ -32,9 +36,11 @@ const ConfirmTel = () => {
       if (res) {
         setIsSmsSent(true);
         setSubmitLoading(false);
+        setInputStr("confirmation");
         console.log("SMS送信成功: " + res);
       } else {
         setIsSmsSent(false);
+        setconfirmationError("SMS送信に失敗しました。再度お試しください。")
         console.log("SMS送信失敗");
       }
     });
@@ -73,16 +79,21 @@ const ConfirmTel = () => {
           </dt>
           <FormErrorMessage>
             {errors.tel && errors.tel.message}
+            {errors.confirmation && errors.confirmation.message}
+            {confirmationError && confirmationError}
           </FormErrorMessage>
           <dd className="ml-0">
+            {/* SMS認証テキスト */}
             <Input
-              {...register("tel", telValidationRules)}
-              id="tel"
-              name="tel"
+              {...register(!isSmsSent ? "tel" : "confirmation", !isSmsSent ? telValidationRules : telConfirmationValidationRules)}
+              id={inputStr}
+              name={inputStr}
               type="text"
               inputMode="text"
               onChange={handleChange}
+              value={!isSmsSent ? tel : confirmation}
             />
+            {/* 認証番号入力テキスト */}
           </dd>
         </dl>
         <SubmitButton />
