@@ -80,3 +80,14 @@ export const telValidationRules: ValidationProps = {
     message: telCommonMessage,
   },
 };
+
+// 認証番号
+const telConfirmationPattern = /^\d{6}$/;
+const telConfirmationCommonMessage = "半角数字の6桁で入力してください。";
+export const telConfirmationValidationRules: ValidationProps = {
+  required: { value: true, message: telConfirmationCommonMessage },
+  pattern: {
+    value: telConfirmationPattern,
+    message: telConfirmationCommonMessage,
+  },
+};

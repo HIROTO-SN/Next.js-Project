@@ -232,14 +232,11 @@ export const verifySMS = async (tel: string): Promise<string> => {
       process.env.TWILIO_AUTH_TOKEN!
     );
     
-    console.log("    await client.messages.create前      ");
     await client.messages.create({
       body: `${otp} ${smsVerificationMsg}`,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: tel,
     });
-
-    console.log("    await client.messages.create後    ");
 
     return sessionId;
   } catch (error) {
