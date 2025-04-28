@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { confirmEmailTemplate } from '../../templates/mail/confirmation';
 
 export interface retLoginState {
-  message: string;
+  status: number;
   error: string;
 }
 
@@ -37,11 +37,11 @@ export const verifyUser = async (formData: formLoginInputs): Promise<retLoginSta
     })
 
     const data: LoginAPIReturn = await response.json();
-    return { message: data.message, error: data.error };
+    return { status: response.status, error: data.message };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     ErrorlogToFile(`Login confirmation failed: email typed: ${email}, password typed: ${password}, message: ${errorMessage}`);
-    return { message: "ログイン認証失敗", error: errorMessage };
+    return { status: 401, error: errorMessage };
   }
 }
 
