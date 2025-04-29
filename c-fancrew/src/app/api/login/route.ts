@@ -34,14 +34,9 @@ export const POST = async (req: Request) => {
       return handleReturn(createConfReturn("メールアドレスまたはパスワードが間違っています", 401));
     }
 
-    // パスワード確認
-    // const isMatch = await bcrypt.compare(password, user.password);
-    // if (!isMatch) {
-      // return NextResponse.json({ error: 'パスワードが間違っています' }, { status: 401 });
-    // }
     return handleReturn(createConfReturn());
   } catch (error) {
-    handleReturn(createConfReturn("ログイン認証処理中に予期せぬエラーが発生しました。", 500, error instanceof Error ? error.message : String(error)));
+    return handleReturn(createConfReturn("ログイン認証処理中に予期せぬエラーが発生しました。", 500, error instanceof Error ? error.message : String(error)));
   }
 };
 
