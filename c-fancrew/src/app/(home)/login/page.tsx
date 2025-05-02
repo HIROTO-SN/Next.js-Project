@@ -7,7 +7,10 @@ import { FormErrorMessage } from "@/components/common/Design/FormErrorMessage";
 import { Input } from "@/components/common/Design/Input";
 import { useBarRight } from "@/contexts/BarRightContext/BarRightContext";
 import { createGoogleLoginUrl, createLineLoginUrl } from "@/utils/authUtils";
-import { emailValidationRules, inputMessageRequired } from "@/utils/config/validationConf";
+import {
+  emailValidationRules,
+  inputMessageRequired,
+} from "@/utils/config/validationConf";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { IoEye, IoEyeOff } from "react-icons/io5";
@@ -25,6 +28,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
   const { setShowBarRight } = useBarRight();
 
   /** 後でDB取得かなんかにする >> */
@@ -56,9 +60,13 @@ const LoginPage = () => {
     setSubmitLoading(true);
     // バリデーションチェック
     await verifyUser(data).then((res: retLoginState) => {
-      if (res) {
+      setLoginError(res.error);
+      if (res.status === 200) {
+        console.log("ログイン成功");
+        setSubmitLoading(false);
       } else {
         console.log("ログイン失敗");
+        setSubmitLoading(false);
       }
     });
   });
@@ -112,7 +120,9 @@ const LoginPage = () => {
                   </FormErrorMessage>
                   <div className="inline-flex relative w-full">
                     <Input
-                      {...register("password", { required: inputMessageRequired })}
+                      {...register("password", {
+                        required: inputMessageRequired,
+                      })}
                       id="password"
                       name="password"
                       type={showPassword ? "text" : "password"}
@@ -130,6 +140,9 @@ const LoginPage = () => {
                       )}
                     </span>
                   </div>
+                  <FormErrorMessage>
+                    {loginError && loginError}
+                  </FormErrorMessage>
                   <p className="mt-3 mb-7">
                     ※パスワードを忘れた方は
                     <a href="/mypage/profile-edit/reset-password">こちら</a>
